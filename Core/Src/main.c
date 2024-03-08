@@ -175,7 +175,7 @@ int main(void)
 
 		yaw = atan(aim_pos.y/aim_pos.x);//偏航角
 		pitch = asin(aim_pos.z/l);//俯仰角
-    float x = 1.0;
+    // float x = 1.0;
     //printf("%d/1000\n", (int)x*1000);
     
     printf("aim_x:%d/1000, aim_y:%d/1000, aim_z:%d/1000, yaw:%d/1000, pitch:%d/1000 \n", 
