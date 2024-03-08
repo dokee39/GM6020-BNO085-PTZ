@@ -37,7 +37,6 @@ BUILD_DIR = build
 # C sources
 C_SOURCES =  \
 Core/Src/main.c \
-Core/Src/com.c \
 Core/Src/package.c \
 Core/Src/stm32f4xx_it.c \
 Core/Src/stm32f4xx_hal_msp.c \
@@ -71,8 +70,6 @@ Core/Src/pid_control_tuning.c \
 Core/Src/bsp_can.c \
 Core/Src/printf.c \
 Core/Src/bsp_usart.c \
-Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pcd.c \
-Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pcd_ex.c \
 
 # ASM sources
 ASM_SOURCES =  \
