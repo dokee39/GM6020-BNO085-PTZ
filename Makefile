@@ -63,6 +63,7 @@ Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c_ex.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c \
 Core/Src/gpio.c \
 Core/Src/can.c \
+Core/Src/dma.c \
 Core/Src/i2c.c \
 Core/Src/usart.c \
 Core/Src/pid.c \
