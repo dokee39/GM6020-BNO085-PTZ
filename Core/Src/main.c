@@ -28,19 +28,17 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bsp_can.h"
-#include "com.h"
 #include "package.h"
 #include "pid.h"
 #include "math.h"
 #include <stdio.h>
-#include <string.h>
 #include "pid_control_tuning.h"
+#include "bsp_usart.h"
 
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-#define printf(...) cprintf(&huart1, __VA_ARGS__)
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -148,7 +146,7 @@ int main(void)
   abs_pid[1].f_param_init(&abs_pid[1], PID_Speed, 300, 300, 0, 0, 4000, 0, 0.5,
                           0, 10);
 
-  printf("--------------init--------------\n");
+  usart6_printf("--------------init--------------\n");
   HAL_I2C_Slave_Receive_IT(&hi2c2, ReceiveBuffer, sizeof(ReceiveBuffer));
 
   SendPacket sp;
@@ -178,7 +176,7 @@ int main(void)
     // float x = 1.0;
     //printf("%d/1000\n", (int)x*1000);
     
-    printf("aim_x:%d/1000, aim_y:%d/1000, aim_z:%d/1000, yaw:%d/1000, pitch:%d/1000 \n", 
+    usart6_printf("aim_x:%d/1000, aim_y:%d/1000, aim_z:%d/1000, yaw:%d/1000, pitch:%d/1000 \n", 
                    (int)aim_pos.x*1000, (int)aim_pos.y*1000, (int)aim_pos.z*1000, (int)yaw*1000, (int)pitch*1000);
 
 		sp.yaw = M_PI * (-IMU_Angle[2]+90)/180;

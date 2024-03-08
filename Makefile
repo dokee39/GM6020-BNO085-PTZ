@@ -69,6 +69,8 @@ Core/Src/usart.c \
 Core/Src/pid.c \
 Core/Src/pid_control_tuning.c \
 Core/Src/bsp_can.c \
+Core/Src/printf.c \
+Core/Src/bsp_usart.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pcd.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pcd_ex.c \
 
