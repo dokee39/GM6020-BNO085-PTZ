@@ -20,6 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "can.h"
+#include "dma.h"
 #include "i2c.h"
 #include "usart.h"
 #include "usb_device.h"
@@ -111,10 +112,12 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_CAN1_Init();
   MX_I2C2_Init();
   MX_USART1_UART_Init();
   MX_USB_DEVICE_Init();
+  MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
 
   HAL_CAN_Start(&hcan1);
