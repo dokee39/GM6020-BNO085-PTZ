@@ -22,6 +22,7 @@
 #include "can.h"
 #include "dma.h"
 #include "i2c.h"
+#include "stm32f4xx_hal_uart.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -56,6 +57,10 @@
 typedef struct Vec3d {
     double x, y, z;
 } Vec3d;
+
+  SendPacket sp;
+  ReceivePacket rp = {0};
+  uint32_t size = SEND_PKG_SIZE;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -149,13 +154,10 @@ int main(void)
   usart6_printf("--------------init--------------\n");
   HAL_I2C_Slave_Receive_IT(&hi2c2, ReceiveBuffer, sizeof(ReceiveBuffer));
 
-  SendPacket sp;
   sp.header = 0x5a;
   sp.detect_color = 1;
   sp.reset_tracker = 0;
   sp.checksum = 0;
-  ReceivePacket rp = {0};
-  uint32_t size = SEND_PKG_SIZE;
 	Vec3d aim_pos = {0};
 	float yaw,pitch;
 	int nan_f = 0;
@@ -164,8 +166,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    // USBD_Interface_fops_FS.Receive((uint8_t *)buf_r, &size);
-    fromVector((uint8_t *)buf_r, &rp);
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart1, (uint8_t *)buf_r, size);
 		aim_pos.x = rp.x;
 		aim_pos.y = rp.y; 
 		aim_pos.z = rp.z;
@@ -182,7 +183,6 @@ int main(void)
 		sp.yaw = M_PI * (-IMU_Angle[2]+90)/180;
 		sp.pitch = M_PI * (-IMU_Angle[0] + 180)/180;
 		sp.roll = M_PI * IMU_Angle[1]/180;
-    // CDC_Transmit_FS((uint8_t *)&sp, sizeof(struct SendPacket));
 
 		//printf("yaw: %d/1000\n",(int)(yaw*1000));
 		//printf("ok\n");
@@ -296,6 +296,15 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c) {
   HAL_I2C_Slave_Receive_IT(&hi2c2, ReceiveBuffer, sizeof(ReceiveBuffer));
 }
 
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+{
+  if (huart == &huart1)
+  {
+    fromVector((uint8_t *)buf_r, &rp);
+    HAL_UART_Transmit_DMA(&huart1, (uint8_t *)&sp, sizeof(struct SendPacket));
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart1, (uint8_t *)buf_r, size);
+  }
+}
 /* USER CODE END 4 */
 
 /**
