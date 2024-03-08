@@ -39,6 +39,6 @@ typedef struct ReceivePacket {
 
 #define SEND_PKG_SIZE sizeof(SendPacket)
 
-inline void fromVector(uint8_t *data, ReceivePacket *pkg);
+void fromVector(uint8_t *data, ReceivePacket *pkg);
 
 #endif

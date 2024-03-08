@@ -87,6 +87,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan)
 	
 	switch(Rx1Message.StdId)
 	{
+    default:
 		case CAN_2006Moto1_ID: MotorID=0; break;
 		case CAN_2006Moto2_ID: MotorID=1; break;
 		case CAN_2006Moto3_ID: MotorID=2; break;
