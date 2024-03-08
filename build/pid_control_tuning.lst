@@ -1,0 +1,1767 @@
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"pid_control_tuning.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.global	__aeabi_f2d
+  20              		.global	__aeabi_dadd
+  21              		.global	__aeabi_dmul
+  22              		.global	__aeabi_ddiv
+  23              		.global	__aeabi_d2iz
+  24              		.section	.text.Abs_angle_control_loop,"ax",%progbits
+  25              		.align	1
+  26              		.global	Abs_angle_control_loop
+  27              		.syntax unified
+  28              		.thumb
+  29              		.thumb_func
+  31              	Abs_angle_control_loop:
+  32              	.LFB133:
+  33              		.file 1 "Core/Src/pid_control_tuning.c"
+   1:Core/Src/pid_control_tuning.c **** #include "pid_control_tuning.h"
+   2:Core/Src/pid_control_tuning.c **** 
+   3:Core/Src/pid_control_tuning.c **** PID_TypeDef motor_pid[4]; //速度环参数
+   4:Core/Src/pid_control_tuning.c **** PID_TypeDef angle_pid[2]; //位置环参数
+   5:Core/Src/pid_control_tuning.c **** PID_TypeDef abs_pid[2];           //绝对角度（自稳，陀螺仪）
+   6:Core/Src/pid_control_tuning.c **** 
+   7:Core/Src/pid_control_tuning.c **** float ABS_Gimbal_angle[2] = {8200,8100};  //云台绝对角度(自稳) {yaw, pitch}, 0-8192 3400-60
+   8:Core/Src/pid_control_tuning.c **** int16_t ABS_IMU_angle[2] = {0};   //归一化之后的IMU角度，用于自稳 {yaw, pitch}, 0-8192
+   9:Core/Src/pid_control_tuning.c **** int16_t IMU_Angle_Raw[3] = {0};   //接收到的陀螺仪欧拉角
+  10:Core/Src/pid_control_tuning.c **** float IMU_Angle[3] = {0};         //转化为浮点的陀螺仪欧拉角
+  11:Core/Src/pid_control_tuning.c **** 
+  12:Core/Src/pid_control_tuning.c **** int16_t Gimbal_angle[2] = {0, 0};   //云台角度设定 {yaw, pitch}，编码器
+  13:Core/Src/pid_control_tuning.c **** 
+  14:Core/Src/pid_control_tuning.c **** 
+  15:Core/Src/pid_control_tuning.c **** int i = 0;
+  16:Core/Src/pid_control_tuning.c **** int j = 0;
+  17:Core/Src/pid_control_tuning.c **** int current = 0;
+  18:Core/Src/pid_control_tuning.c **** int speed = 0;
+  19:Core/Src/pid_control_tuning.c **** int time = 0;
+  20:Core/Src/pid_control_tuning.c **** int speed_set = 0;
+  21:Core/Src/pid_control_tuning.c **** 
+  22:Core/Src/pid_control_tuning.c **** //陀螺仪位置控制
+  23:Core/Src/pid_control_tuning.c **** void Abs_angle_control_loop()
+  24:Core/Src/pid_control_tuning.c **** {
+  34              		.loc 1 24 1 view -0
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 2
+
+
+  35              		.cfi_startproc
+  36              		@ args = 0, pretend = 0, frame = 0
+  37              		@ frame_needed = 0, uses_anonymous_args = 0
+  38 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+  39              	.LCFI0:
+  40              		.cfi_def_cfa_offset 24
+  41              		.cfi_offset 4, -24
+  42              		.cfi_offset 5, -20
+  43              		.cfi_offset 6, -16
+  44              		.cfi_offset 7, -12
+  45              		.cfi_offset 8, -8
+  46              		.cfi_offset 14, -4
+  47 0004 82B0     		sub	sp, sp, #8
+  48              	.LCFI1:
+  49              		.cfi_def_cfa_offset 32
+  25:Core/Src/pid_control_tuning.c ****   /*自稳控制*/
+  26:Core/Src/pid_control_tuning.c ****   //IMU归一化
+  27:Core/Src/pid_control_tuning.c ****   ABS_IMU_angle[0] = (int)((IMU_Angle[2]*8192)/360); //yaw
+  50              		.loc 1 27 3 view .LVU1
+  51              		.loc 1 27 38 is_stmt 0 view .LVU2
+  52 0006 3C4B     		ldr	r3, .L3
+  53 0008 93ED027A 		vldr.32	s14, [r3, #8]
+  54              		.loc 1 27 41 view .LVU3
+  55 000c DFED3B7A 		vldr.32	s15, .L3+4
+  56 0010 27EE277A 		vmul.f32	s14, s14, s15
+  57              		.loc 1 27 47 view .LVU4
+  58 0014 DFED3A6A 		vldr.32	s13, .L3+8
+  59 0018 C7EE267A 		vdiv.f32	s15, s14, s13
+  60              		.loc 1 27 22 view .LVU5
+  61 001c FDEEE77A 		vcvt.s32.f32	s15, s15
+  62              		.loc 1 27 20 view .LVU6
+  63 0020 17EE902A 		vmov	r2, s15	@ int
+  64 0024 14B2     		sxth	r4, r2
+  65 0026 374E     		ldr	r6, .L3+12
+  66 0028 3480     		strh	r4, [r6]	@ movhi
+  28:Core/Src/pid_control_tuning.c ****   ABS_IMU_angle[1] = (int)(((IMU_Angle[0]+180.0)*8192)/360); //pitch
+  67              		.loc 1 28 3 is_stmt 1 view .LVU7
+  68              		.loc 1 28 39 is_stmt 0 view .LVU8
+  69 002a 1868     		ldr	r0, [r3]	@ float
+  70 002c FFF7FEFF 		bl	__aeabi_f2d
+  71              	.LVL0:
+  72              		.loc 1 28 42 view .LVU9
+  73 0030 0022     		movs	r2, #0
+  74 0032 354B     		ldr	r3, .L3+16
+  75 0034 FFF7FEFF 		bl	__aeabi_dadd
+  76              	.LVL1:
+  77              		.loc 1 28 49 view .LVU10
+  78 0038 0022     		movs	r2, #0
+  79 003a 344B     		ldr	r3, .L3+20
+  80 003c FFF7FEFF 		bl	__aeabi_dmul
+  81              	.LVL2:
+  82              		.loc 1 28 55 view .LVU11
+  83 0040 0022     		movs	r2, #0
+  84 0042 334B     		ldr	r3, .L3+24
+  85 0044 FFF7FEFF 		bl	__aeabi_ddiv
+  86              	.LVL3:
+  87              		.loc 1 28 22 view .LVU12
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 3
+
+
+  88 0048 FFF7FEFF 		bl	__aeabi_d2iz
+  89              	.LVL4:
+  90              		.loc 1 28 20 view .LVU13
+  91 004c 7080     		strh	r0, [r6, #2]	@ movhi
+  29:Core/Src/pid_control_tuning.c ****   //YAW计算
+  30:Core/Src/pid_control_tuning.c ****   int motor_ID = 0;
+  92              		.loc 1 30 3 is_stmt 1 view .LVU14
+  93              	.LVL5:
+  31:Core/Src/pid_control_tuning.c ****   abs_pid[motor_ID].target = ABS_Gimbal_angle[0];
+  94              		.loc 1 31 3 view .LVU15
+  95              		.loc 1 31 46 is_stmt 0 view .LVU16
+  96 004e DFF8D480 		ldr	r8, .L3+44
+  97 0052 D8F80030 		ldr	r3, [r8]	@ float
+  98              		.loc 1 31 28 view .LVU17
+  99 0056 2F4D     		ldr	r5, .L3+28
+ 100 0058 6B60     		str	r3, [r5, #4]	@ float
+  32:Core/Src/pid_control_tuning.c ****   abs_pid[motor_ID].f_cal_pid(&abs_pid[motor_ID], ABS_IMU_angle[motor_ID], 8192);
+ 101              		.loc 1 32 3 is_stmt 1 view .LVU18
+ 102              		.loc 1 32 20 is_stmt 0 view .LVU19
+ 103 005a 2B6E     		ldr	r3, [r5, #96]
+ 104              		.loc 1 32 3 view .LVU20
+ 105 005c 4FF40051 		mov	r1, #8192
+ 106 0060 07EE904A 		vmov	s15, r4	@ int
+ 107 0064 B8EEE70A 		vcvt.f32.s32	s0, s15
+ 108 0068 2846     		mov	r0, r5
+ 109 006a 9847     		blx	r3
+ 110              	.LVL6:
+  33:Core/Src/pid_control_tuning.c ****   motor_pid[motor_ID].target = abs_pid[motor_ID].output; 																							
+ 111              		.loc 1 33 3 is_stmt 1 view .LVU21
+ 112              		.loc 1 33 49 is_stmt 0 view .LVU22
+ 113 006c 2B6B     		ldr	r3, [r5, #48]	@ float
+ 114              		.loc 1 33 30 view .LVU23
+ 115 006e 2A4C     		ldr	r4, .L3+32
+ 116 0070 6360     		str	r3, [r4, #4]	@ float
+  34:Core/Src/pid_control_tuning.c ****   motor_pid[motor_ID].f_cal_pid(&motor_pid[motor_ID],moto_chassis[motor_ID].speed_rpm, 0);
+ 117              		.loc 1 34 3 is_stmt 1 view .LVU24
+ 118              		.loc 1 34 22 is_stmt 0 view .LVU25
+ 119 0072 236E     		ldr	r3, [r4, #96]
+ 120              		.loc 1 34 76 view .LVU26
+ 121 0074 294F     		ldr	r7, .L3+36
+ 122 0076 B7F90020 		ldrsh	r2, [r7]
+ 123 007a 00EE102A 		vmov	s0, r2	@ int
+ 124              		.loc 1 34 3 view .LVU27
+ 125 007e 0021     		movs	r1, #0
+ 126 0080 B8EEC00A 		vcvt.f32.s32	s0, s0
+ 127 0084 2046     		mov	r0, r4
+ 128 0086 9847     		blx	r3
+ 129              	.LVL7:
+  35:Core/Src/pid_control_tuning.c **** 
+  36:Core/Src/pid_control_tuning.c ****   //PITCH计算
+  37:Core/Src/pid_control_tuning.c ****   motor_ID = 1;
+ 130              		.loc 1 37 3 is_stmt 1 view .LVU28
+  38:Core/Src/pid_control_tuning.c ****   abs_pid[motor_ID].target = ABS_Gimbal_angle[1];
+ 131              		.loc 1 38 3 view .LVU29
+ 132              		.loc 1 38 46 is_stmt 0 view .LVU30
+ 133 0088 D8F80430 		ldr	r3, [r8, #4]	@ float
+ 134              		.loc 1 38 28 view .LVU31
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 4
+
+
+ 135 008c AB66     		str	r3, [r5, #104]	@ float
+  39:Core/Src/pid_control_tuning.c ****   abs_pid[motor_ID].f_cal_pid(&abs_pid[motor_ID], ABS_IMU_angle[motor_ID], 8192);
+ 136              		.loc 1 39 3 is_stmt 1 view .LVU32
+ 137              		.loc 1 39 20 is_stmt 0 view .LVU33
+ 138 008e D5F8C430 		ldr	r3, [r5, #196]
+ 139              		.loc 1 39 64 view .LVU34
+ 140 0092 B6F90220 		ldrsh	r2, [r6, #2]
+ 141 0096 00EE102A 		vmov	s0, r2	@ int
+ 142              		.loc 1 39 3 view .LVU35
+ 143 009a 4FF40051 		mov	r1, #8192
+ 144 009e B8EEC00A 		vcvt.f32.s32	s0, s0
+ 145 00a2 05F16400 		add	r0, r5, #100
+ 146 00a6 9847     		blx	r3
+ 147              	.LVL8:
+  40:Core/Src/pid_control_tuning.c ****   motor_pid[motor_ID].target = abs_pid[motor_ID].output; 																							
+ 148              		.loc 1 40 3 is_stmt 1 view .LVU36
+ 149              		.loc 1 40 49 is_stmt 0 view .LVU37
+ 150 00a8 D5F89430 		ldr	r3, [r5, #148]	@ float
+ 151              		.loc 1 40 30 view .LVU38
+ 152 00ac A366     		str	r3, [r4, #104]	@ float
+  41:Core/Src/pid_control_tuning.c ****   motor_pid[motor_ID].f_cal_pid(&motor_pid[motor_ID],moto_chassis[motor_ID].speed_rpm, 0);
+ 153              		.loc 1 41 3 is_stmt 1 view .LVU39
+ 154              		.loc 1 41 22 is_stmt 0 view .LVU40
+ 155 00ae D4F8C430 		ldr	r3, [r4, #196]
+ 156              		.loc 1 41 76 view .LVU41
+ 157 00b2 B7F93020 		ldrsh	r2, [r7, #48]
+ 158 00b6 00EE102A 		vmov	s0, r2	@ int
+ 159              		.loc 1 41 3 view .LVU42
+ 160 00ba 0021     		movs	r1, #0
+ 161 00bc B8EEC00A 		vcvt.f32.s32	s0, s0
+ 162 00c0 04F16400 		add	r0, r4, #100
+ 163 00c4 9847     		blx	r3
+ 164              	.LVL9:
+  42:Core/Src/pid_control_tuning.c **** 
+  43:Core/Src/pid_control_tuning.c **** 
+  44:Core/Src/pid_control_tuning.c ****   set_moto_current(&hcan1, motor_pid[0].output, motor_pid[1].output, 0, 0);
+ 165              		.loc 1 44 3 is_stmt 1 view .LVU43
+ 166              		.loc 1 44 40 is_stmt 0 view .LVU44
+ 167 00c6 D4ED0C7A 		vldr.32	s15, [r4, #48]
+ 168              		.loc 1 44 61 view .LVU45
+ 169 00ca 94ED257A 		vldr.32	s14, [r4, #148]
+ 170              		.loc 1 44 3 view .LVU46
+ 171 00ce BDEEC77A 		vcvt.s32.f32	s14, s14
+ 172 00d2 FDEEE77A 		vcvt.s32.f32	s15, s15
+ 173 00d6 0023     		movs	r3, #0
+ 174 00d8 0093     		str	r3, [sp]
+ 175 00da 17EE102A 		vmov	r2, s14	@ int
+ 176 00de 12B2     		sxth	r2, r2
+ 177 00e0 17EE901A 		vmov	r1, s15	@ int
+ 178 00e4 09B2     		sxth	r1, r1
+ 179 00e6 0E48     		ldr	r0, .L3+40
+ 180 00e8 FFF7FEFF 		bl	set_moto_current
+ 181              	.LVL10:
+  45:Core/Src/pid_control_tuning.c ****   /**printf("%d, %d\n", moto_chassis[motor_ID].angle, ABS_IMU_angle[motor_ID]);*/
+  46:Core/Src/pid_control_tuning.c ****   HAL_Delay(1);
+ 182              		.loc 1 46 3 is_stmt 1 view .LVU47
+ 183 00ec 0120     		movs	r0, #1
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 5
+
+
+ 184 00ee FFF7FEFF 		bl	HAL_Delay
+ 185              	.LVL11:
+  47:Core/Src/pid_control_tuning.c **** }
+ 186              		.loc 1 47 1 is_stmt 0 view .LVU48
+ 187 00f2 02B0     		add	sp, sp, #8
+ 188              	.LCFI2:
+ 189              		.cfi_def_cfa_offset 24
+ 190              		@ sp needed
+ 191 00f4 BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 192              	.L4:
+ 193              		.align	2
+ 194              	.L3:
+ 195 00f8 00000000 		.word	.LANCHOR0
+ 196 00fc 00000046 		.word	1174405120
+ 197 0100 0000B443 		.word	1135869952
+ 198 0104 00000000 		.word	.LANCHOR1
+ 199 0108 00806640 		.word	1080459264
+ 200 010c 0000C040 		.word	1086324736
+ 201 0110 00807640 		.word	1081507840
+ 202 0114 00000000 		.word	.LANCHOR3
+ 203 0118 00000000 		.word	.LANCHOR4
+ 204 011c 00000000 		.word	moto_chassis
+ 205 0120 00000000 		.word	hcan1
+ 206 0124 00000000 		.word	.LANCHOR2
+ 207              		.cfi_endproc
+ 208              	.LFE133:
+ 210              		.section	.text.Rel_angle_control_loop,"ax",%progbits
+ 211              		.align	1
+ 212              		.global	Rel_angle_control_loop
+ 213              		.syntax unified
+ 214              		.thumb
+ 215              		.thumb_func
+ 217              	Rel_angle_control_loop:
+ 218              	.LFB134:
+  48:Core/Src/pid_control_tuning.c **** 
+  49:Core/Src/pid_control_tuning.c **** //编码器位置控制
+  50:Core/Src/pid_control_tuning.c **** void Rel_angle_control_loop()
+  51:Core/Src/pid_control_tuning.c **** {
+ 219              		.loc 1 51 1 is_stmt 1 view -0
+ 220              		.cfi_startproc
+ 221              		@ args = 0, pretend = 0, frame = 0
+ 222              		@ frame_needed = 0, uses_anonymous_args = 0
+ 223 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 224              	.LCFI3:
+ 225              		.cfi_def_cfa_offset 20
+ 226              		.cfi_offset 4, -20
+ 227              		.cfi_offset 5, -16
+ 228              		.cfi_offset 6, -12
+ 229              		.cfi_offset 7, -8
+ 230              		.cfi_offset 14, -4
+ 231 0002 83B0     		sub	sp, sp, #12
+ 232              	.LCFI4:
+ 233              		.cfi_def_cfa_offset 32
+  52:Core/Src/pid_control_tuning.c ****     
+  53:Core/Src/pid_control_tuning.c ****     i++;
+ 234              		.loc 1 53 5 view .LVU50
+ 235              		.loc 1 53 6 is_stmt 0 view .LVU51
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 6
+
+
+ 236 0004 454A     		ldr	r2, .L9
+ 237 0006 1368     		ldr	r3, [r2]
+ 238 0008 0133     		adds	r3, r3, #1
+ 239 000a 1360     		str	r3, [r2]
+  54:Core/Src/pid_control_tuning.c ****   /*自稳计算*/
+  55:Core/Src/pid_control_tuning.c ****   //IMU归一化
+  56:Core/Src/pid_control_tuning.c ****   ABS_IMU_angle[0] = (int)(IMU_Angle[2]*(8192/360)); //yaw
+ 240              		.loc 1 56 3 is_stmt 1 view .LVU52
+ 241              		.loc 1 56 37 is_stmt 0 view .LVU53
+ 242 000c 444B     		ldr	r3, .L9+4
+ 243 000e D3ED027A 		vldr.32	s15, [r3, #8]
+ 244              		.loc 1 56 40 view .LVU54
+ 245 0012 B3EE067A 		vmov.f32	s14, #2.2e+1
+ 246 0016 67EE877A 		vmul.f32	s15, s15, s14
+ 247              		.loc 1 56 22 view .LVU55
+ 248 001a FDEEE77A 		vcvt.s32.f32	s15, s15
+ 249              		.loc 1 56 20 view .LVU56
+ 250 001e 414C     		ldr	r4, .L9+8
+ 251 0020 17EE902A 		vmov	r2, s15	@ int
+ 252 0024 2280     		strh	r2, [r4]	@ movhi
+  57:Core/Src/pid_control_tuning.c ****   ABS_IMU_angle[1] = (int)((IMU_Angle[0]+180.0)*(8192/360)); //pitch
+ 253              		.loc 1 57 3 is_stmt 1 view .LVU57
+ 254              		.loc 1 57 38 is_stmt 0 view .LVU58
+ 255 0026 1868     		ldr	r0, [r3]	@ float
+ 256 0028 FFF7FEFF 		bl	__aeabi_f2d
+ 257              	.LVL12:
+ 258              		.loc 1 57 41 view .LVU59
+ 259 002c 0022     		movs	r2, #0
+ 260 002e 3E4B     		ldr	r3, .L9+12
+ 261 0030 FFF7FEFF 		bl	__aeabi_dadd
+ 262              	.LVL13:
+ 263              		.loc 1 57 48 view .LVU60
+ 264 0034 0022     		movs	r2, #0
+ 265 0036 3D4B     		ldr	r3, .L9+16
+ 266 0038 FFF7FEFF 		bl	__aeabi_dmul
+ 267              	.LVL14:
+ 268              		.loc 1 57 22 view .LVU61
+ 269 003c FFF7FEFF 		bl	__aeabi_d2iz
+ 270              	.LVL15:
+ 271              		.loc 1 57 20 view .LVU62
+ 272 0040 6080     		strh	r0, [r4, #2]	@ movhi
+  58:Core/Src/pid_control_tuning.c **** 
+  59:Core/Src/pid_control_tuning.c ****   if(Gimbal_angle[0] > 8191) Gimbal_angle[0] = 0;
+ 273              		.loc 1 59 3 is_stmt 1 view .LVU63
+ 274              		.loc 1 59 18 is_stmt 0 view .LVU64
+ 275 0042 3B4B     		ldr	r3, .L9+20
+ 276 0044 B3F90030 		ldrsh	r3, [r3]
+ 277              		.loc 1 59 5 view .LVU65
+ 278 0048 B3F5005F 		cmp	r3, #8192
+ 279 004c 5FDB     		blt	.L6
+ 280              		.loc 1 59 30 is_stmt 1 discriminator 1 view .LVU66
+ 281              		.loc 1 59 46 is_stmt 0 discriminator 1 view .LVU67
+ 282 004e 384B     		ldr	r3, .L9+20
+ 283 0050 0022     		movs	r2, #0
+ 284 0052 1A80     		strh	r2, [r3]	@ movhi
+ 285              	.L7:
+  60:Core/Src/pid_control_tuning.c ****   else if(Gimbal_angle[0] < 0) Gimbal_angle[0] = 8191;
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 7
+
+
+  61:Core/Src/pid_control_tuning.c ****     //用PID计算电流
+  62:Core/Src/pid_control_tuning.c ****     //这里用for会有奇怪的问题，暂时展开
+  63:Core/Src/pid_control_tuning.c ****     int motor_ID = 0;
+ 286              		.loc 1 63 5 is_stmt 1 view .LVU68
+ 287              	.LVL16:
+  64:Core/Src/pid_control_tuning.c ****     angle_pid[motor_ID].target = Gimbal_angle[0];
+ 288              		.loc 1 64 5 view .LVU69
+ 289              		.loc 1 64 46 is_stmt 0 view .LVU70
+ 290 0054 364F     		ldr	r7, .L9+20
+ 291 0056 B7F90030 		ldrsh	r3, [r7]
+ 292 005a 07EE903A 		vmov	s15, r3	@ int
+ 293              		.loc 1 64 32 view .LVU71
+ 294 005e 354D     		ldr	r5, .L9+24
+ 295 0060 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 296 0064 C5ED017A 		vstr.32	s15, [r5, #4]
+  65:Core/Src/pid_control_tuning.c ****     angle_pid[motor_ID].f_cal_pid(&angle_pid[motor_ID], moto_chassis[motor_ID].angle, 8192);
+ 297              		.loc 1 65 5 is_stmt 1 view .LVU72
+ 298              		.loc 1 65 24 is_stmt 0 view .LVU73
+ 299 0068 2B6E     		ldr	r3, [r5, #96]
+ 300              		.loc 1 65 79 view .LVU74
+ 301 006a 334E     		ldr	r6, .L9+28
+ 302 006c B289     		ldrh	r2, [r6, #12]
+ 303 006e 00EE102A 		vmov	s0, r2	@ int
+ 304              		.loc 1 65 5 view .LVU75
+ 305 0072 4FF40051 		mov	r1, #8192
+ 306 0076 B8EE400A 		vcvt.f32.u32	s0, s0
+ 307 007a 2846     		mov	r0, r5
+ 308 007c 9847     		blx	r3
+ 309              	.LVL17:
+  66:Core/Src/pid_control_tuning.c ****     motor_pid[motor_ID].target = angle_pid[motor_ID].output;
+ 310              		.loc 1 66 5 is_stmt 1 view .LVU76
+ 311              		.loc 1 66 53 is_stmt 0 view .LVU77
+ 312 007e 2B6B     		ldr	r3, [r5, #48]	@ float
+ 313              		.loc 1 66 32 view .LVU78
+ 314 0080 2E4C     		ldr	r4, .L9+32
+ 315 0082 6360     		str	r3, [r4, #4]	@ float
+  67:Core/Src/pid_control_tuning.c ****     motor_pid[motor_ID].f_cal_pid(&motor_pid[motor_ID],moto_chassis[motor_ID].speed_rpm, 0);
+ 316              		.loc 1 67 5 is_stmt 1 view .LVU79
+ 317              		.loc 1 67 24 is_stmt 0 view .LVU80
+ 318 0084 236E     		ldr	r3, [r4, #96]
+ 319              		.loc 1 67 78 view .LVU81
+ 320 0086 B6F90020 		ldrsh	r2, [r6]
+ 321 008a 00EE102A 		vmov	s0, r2	@ int
+ 322              		.loc 1 67 5 view .LVU82
+ 323 008e 0021     		movs	r1, #0
+ 324 0090 B8EEC00A 		vcvt.f32.s32	s0, s0
+ 325 0094 2046     		mov	r0, r4
+ 326 0096 9847     		blx	r3
+ 327              	.LVL18:
+  68:Core/Src/pid_control_tuning.c **** 
+  69:Core/Src/pid_control_tuning.c ****     motor_ID = 1;
+ 328              		.loc 1 69 5 is_stmt 1 view .LVU83
+  70:Core/Src/pid_control_tuning.c ****     angle_pid[motor_ID].target = Gimbal_angle[1];
+ 329              		.loc 1 70 5 view .LVU84
+ 330              		.loc 1 70 46 is_stmt 0 view .LVU85
+ 331 0098 B7F90230 		ldrsh	r3, [r7, #2]
+ 332 009c 07EE903A 		vmov	s15, r3	@ int
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 8
+
+
+ 333              		.loc 1 70 32 view .LVU86
+ 334 00a0 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 335 00a4 C5ED1A7A 		vstr.32	s15, [r5, #104]
+  71:Core/Src/pid_control_tuning.c ****     angle_pid[motor_ID].f_cal_pid(&angle_pid[motor_ID], moto_chassis[motor_ID].angle, 8192);
+ 336              		.loc 1 71 5 is_stmt 1 view .LVU87
+ 337              		.loc 1 71 24 is_stmt 0 view .LVU88
+ 338 00a8 D5F8C430 		ldr	r3, [r5, #196]
+ 339              		.loc 1 71 79 view .LVU89
+ 340 00ac B28F     		ldrh	r2, [r6, #60]
+ 341 00ae 00EE102A 		vmov	s0, r2	@ int
+ 342              		.loc 1 71 5 view .LVU90
+ 343 00b2 4FF40051 		mov	r1, #8192
+ 344 00b6 B8EE400A 		vcvt.f32.u32	s0, s0
+ 345 00ba 05F16400 		add	r0, r5, #100
+ 346 00be 9847     		blx	r3
+ 347              	.LVL19:
+  72:Core/Src/pid_control_tuning.c ****     motor_pid[motor_ID].target = angle_pid[motor_ID].output; 																							
+ 348              		.loc 1 72 5 is_stmt 1 view .LVU91
+ 349              		.loc 1 72 53 is_stmt 0 view .LVU92
+ 350 00c0 D5F89430 		ldr	r3, [r5, #148]	@ float
+ 351              		.loc 1 72 32 view .LVU93
+ 352 00c4 A366     		str	r3, [r4, #104]	@ float
+  73:Core/Src/pid_control_tuning.c ****     motor_pid[motor_ID].f_cal_pid(&motor_pid[motor_ID],moto_chassis[motor_ID].speed_rpm, 0);
+ 353              		.loc 1 73 5 is_stmt 1 view .LVU94
+ 354              		.loc 1 73 24 is_stmt 0 view .LVU95
+ 355 00c6 D4F8C430 		ldr	r3, [r4, #196]
+ 356              		.loc 1 73 78 view .LVU96
+ 357 00ca B6F93020 		ldrsh	r2, [r6, #48]
+ 358 00ce 00EE102A 		vmov	s0, r2	@ int
+ 359              		.loc 1 73 5 view .LVU97
+ 360 00d2 0021     		movs	r1, #0
+ 361 00d4 B8EEC00A 		vcvt.f32.s32	s0, s0
+ 362 00d8 04F16400 		add	r0, r4, #100
+ 363 00dc 9847     		blx	r3
+ 364              	.LVL20:
+  74:Core/Src/pid_control_tuning.c **** 
+  75:Core/Src/pid_control_tuning.c ****     set_moto_current(&hcan1, motor_pid[0].output, motor_pid[1].output, 0, 0);
+ 365              		.loc 1 75 5 is_stmt 1 view .LVU98
+ 366              		.loc 1 75 42 is_stmt 0 view .LVU99
+ 367 00de D4ED0C7A 		vldr.32	s15, [r4, #48]
+ 368              		.loc 1 75 63 view .LVU100
+ 369 00e2 94ED257A 		vldr.32	s14, [r4, #148]
+ 370              		.loc 1 75 5 view .LVU101
+ 371 00e6 BDEEC77A 		vcvt.s32.f32	s14, s14
+ 372 00ea FDEEE77A 		vcvt.s32.f32	s15, s15
+ 373 00ee 0023     		movs	r3, #0
+ 374 00f0 0093     		str	r3, [sp]
+ 375 00f2 17EE102A 		vmov	r2, s14	@ int
+ 376 00f6 12B2     		sxth	r2, r2
+ 377 00f8 17EE901A 		vmov	r1, s15	@ int
+ 378 00fc 09B2     		sxth	r1, r1
+ 379 00fe 1048     		ldr	r0, .L9+36
+ 380 0100 FFF7FEFF 		bl	set_moto_current
+ 381              	.LVL21:
+  76:Core/Src/pid_control_tuning.c ****     /**printf("%d, %d\n", moto_chassis[0].angle, moto_chassis[1].angle);*/
+  77:Core/Src/pid_control_tuning.c ****     /**printf("%f\n", IMU_Angle[0]);*/
+  78:Core/Src/pid_control_tuning.c ****     HAL_Delay(1); //1000hz
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 9
+
+
+ 382              		.loc 1 78 5 is_stmt 1 view .LVU102
+ 383 0104 0120     		movs	r0, #1
+ 384 0106 FFF7FEFF 		bl	HAL_Delay
+ 385              	.LVL22:
+  79:Core/Src/pid_control_tuning.c **** }
+ 386              		.loc 1 79 1 is_stmt 0 view .LVU103
+ 387 010a 03B0     		add	sp, sp, #12
+ 388              	.LCFI5:
+ 389              		.cfi_remember_state
+ 390              		.cfi_def_cfa_offset 20
+ 391              		@ sp needed
+ 392 010c F0BD     		pop	{r4, r5, r6, r7, pc}
+ 393              	.LVL23:
+ 394              	.L6:
+ 395              	.LCFI6:
+ 396              		.cfi_restore_state
+  60:Core/Src/pid_control_tuning.c ****     //用PID计算电流
+ 397              		.loc 1 60 8 is_stmt 1 view .LVU104
+  60:Core/Src/pid_control_tuning.c ****     //用PID计算电流
+ 398              		.loc 1 60 10 is_stmt 0 view .LVU105
+ 399 010e 002B     		cmp	r3, #0
+ 400 0110 A0DA     		bge	.L7
+  60:Core/Src/pid_control_tuning.c ****     //用PID计算电流
+ 401              		.loc 1 60 32 is_stmt 1 discriminator 1 view .LVU106
+  60:Core/Src/pid_control_tuning.c ****     //用PID计算电流
+ 402              		.loc 1 60 48 is_stmt 0 discriminator 1 view .LVU107
+ 403 0112 074B     		ldr	r3, .L9+20
+ 404 0114 41F6FF72 		movw	r2, #8191
+ 405 0118 1A80     		strh	r2, [r3]	@ movhi
+ 406 011a 9BE7     		b	.L7
+ 407              	.L10:
+ 408              		.align	2
+ 409              	.L9:
+ 410 011c 00000000 		.word	.LANCHOR5
+ 411 0120 00000000 		.word	.LANCHOR0
+ 412 0124 00000000 		.word	.LANCHOR1
+ 413 0128 00806640 		.word	1080459264
+ 414 012c 00003640 		.word	1077280768
+ 415 0130 00000000 		.word	.LANCHOR6
+ 416 0134 00000000 		.word	.LANCHOR7
+ 417 0138 00000000 		.word	moto_chassis
+ 418 013c 00000000 		.word	.LANCHOR4
+ 419 0140 00000000 		.word	hcan1
+ 420              		.cfi_endproc
+ 421              	.LFE134:
+ 423              		.section	.text.Abs_angle_PID_test_loop,"ax",%progbits
+ 424              		.align	1
+ 425              		.global	Abs_angle_PID_test_loop
+ 426              		.syntax unified
+ 427              		.thumb
+ 428              		.thumb_func
+ 430              	Abs_angle_PID_test_loop:
+ 431              	.LVL24:
+ 432              	.LFB135:
+  80:Core/Src/pid_control_tuning.c **** 
+  81:Core/Src/pid_control_tuning.c **** //自稳PID效果测试
+  82:Core/Src/pid_control_tuning.c **** void Abs_angle_PID_test_loop(int motor_ID)
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 10
+
+
+  83:Core/Src/pid_control_tuning.c **** {
+ 433              		.loc 1 83 1 is_stmt 1 view -0
+ 434              		.cfi_startproc
+ 435              		@ args = 0, pretend = 0, frame = 0
+ 436              		@ frame_needed = 0, uses_anonymous_args = 0
+ 437              		.loc 1 83 1 is_stmt 0 view .LVU109
+ 438 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 439              	.LCFI7:
+ 440              		.cfi_def_cfa_offset 20
+ 441              		.cfi_offset 4, -20
+ 442              		.cfi_offset 5, -16
+ 443              		.cfi_offset 6, -12
+ 444              		.cfi_offset 7, -8
+ 445              		.cfi_offset 14, -4
+ 446 0002 83B0     		sub	sp, sp, #12
+ 447              	.LCFI8:
+ 448              		.cfi_def_cfa_offset 32
+ 449 0004 0446     		mov	r4, r0
+  84:Core/Src/pid_control_tuning.c ****   //自稳效果测试
+  85:Core/Src/pid_control_tuning.c ****   //IMU归一化
+  86:Core/Src/pid_control_tuning.c ****   ABS_IMU_angle[0] = (int)((IMU_Angle[2]*8192)/360); //yaw
+ 450              		.loc 1 86 3 is_stmt 1 view .LVU110
+ 451              		.loc 1 86 38 is_stmt 0 view .LVU111
+ 452 0006 384B     		ldr	r3, .L17
+ 453 0008 93ED027A 		vldr.32	s14, [r3, #8]
+ 454              		.loc 1 86 41 view .LVU112
+ 455 000c DFED377A 		vldr.32	s15, .L17+4
+ 456 0010 27EE277A 		vmul.f32	s14, s14, s15
+ 457              		.loc 1 86 47 view .LVU113
+ 458 0014 DFED366A 		vldr.32	s13, .L17+8
+ 459 0018 C7EE267A 		vdiv.f32	s15, s14, s13
+ 460              		.loc 1 86 22 view .LVU114
+ 461 001c FDEEE77A 		vcvt.s32.f32	s15, s15
+ 462              		.loc 1 86 20 view .LVU115
+ 463 0020 344F     		ldr	r7, .L17+12
+ 464 0022 17EE902A 		vmov	r2, s15	@ int
+ 465 0026 3A80     		strh	r2, [r7]	@ movhi
+  87:Core/Src/pid_control_tuning.c ****   ABS_IMU_angle[1] = (int)(((IMU_Angle[0]+180.0)*8192)/360); //pitch
+ 466              		.loc 1 87 3 is_stmt 1 view .LVU116
+ 467              		.loc 1 87 39 is_stmt 0 view .LVU117
+ 468 0028 1868     		ldr	r0, [r3]	@ float
+ 469              	.LVL25:
+ 470              		.loc 1 87 39 view .LVU118
+ 471 002a FFF7FEFF 		bl	__aeabi_f2d
+ 472              	.LVL26:
+ 473              		.loc 1 87 42 view .LVU119
+ 474 002e 0022     		movs	r2, #0
+ 475 0030 314B     		ldr	r3, .L17+16
+ 476 0032 FFF7FEFF 		bl	__aeabi_dadd
+ 477              	.LVL27:
+ 478              		.loc 1 87 49 view .LVU120
+ 479 0036 0022     		movs	r2, #0
+ 480 0038 304B     		ldr	r3, .L17+20
+ 481 003a FFF7FEFF 		bl	__aeabi_dmul
+ 482              	.LVL28:
+ 483              		.loc 1 87 55 view .LVU121
+ 484 003e 0022     		movs	r2, #0
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 11
+
+
+ 485 0040 2F4B     		ldr	r3, .L17+24
+ 486 0042 FFF7FEFF 		bl	__aeabi_ddiv
+ 487              	.LVL29:
+ 488              		.loc 1 87 22 view .LVU122
+ 489 0046 FFF7FEFF 		bl	__aeabi_d2iz
+ 490              	.LVL30:
+ 491              		.loc 1 87 20 view .LVU123
+ 492 004a 7880     		strh	r0, [r7, #2]	@ movhi
+  88:Core/Src/pid_control_tuning.c ****   abs_pid[motor_ID].target = 0;
+ 493              		.loc 1 88 3 is_stmt 1 view .LVU124
+ 494              		.loc 1 88 28 is_stmt 0 view .LVU125
+ 495 004c 6420     		movs	r0, #100
+ 496 004e 00FB04F6 		mul	r6, r0, r4
+ 497 0052 2C4D     		ldr	r5, .L17+28
+ 498 0054 3544     		add	r5, r5, r6
+ 499 0056 0023     		movs	r3, #0
+ 500 0058 6B60     		str	r3, [r5, #4]	@ float
+  89:Core/Src/pid_control_tuning.c ****   abs_pid[motor_ID].f_cal_pid(&abs_pid[motor_ID], ABS_IMU_angle[motor_ID], 8192);
+ 501              		.loc 1 89 3 is_stmt 1 view .LVU126
+ 502              		.loc 1 89 20 is_stmt 0 view .LVU127
+ 503 005a 2B6E     		ldr	r3, [r5, #96]
+ 504              		.loc 1 89 64 view .LVU128
+ 505 005c 37F91420 		ldrsh	r2, [r7, r4, lsl #1]
+ 506 0060 00EE102A 		vmov	s0, r2	@ int
+ 507              		.loc 1 89 3 view .LVU129
+ 508 0064 4FF40051 		mov	r1, #8192
+ 509 0068 B8EEC00A 		vcvt.f32.s32	s0, s0
+ 510 006c 2846     		mov	r0, r5
+ 511 006e 9847     		blx	r3
+ 512              	.LVL31:
+  90:Core/Src/pid_control_tuning.c **** 
+  91:Core/Src/pid_control_tuning.c ****   motor_pid[motor_ID].target = abs_pid[motor_ID].output; 																							
+ 513              		.loc 1 91 3 is_stmt 1 view .LVU130
+ 514              		.loc 1 91 49 is_stmt 0 view .LVU131
+ 515 0070 2B6B     		ldr	r3, [r5, #48]	@ float
+ 516              		.loc 1 91 30 view .LVU132
+ 517 0072 2548     		ldr	r0, .L17+32
+ 518 0074 3044     		add	r0, r0, r6
+ 519 0076 4360     		str	r3, [r0, #4]	@ float
+  92:Core/Src/pid_control_tuning.c ****   motor_pid[motor_ID].f_cal_pid(&motor_pid[motor_ID],moto_chassis[motor_ID].speed_rpm, 0);
+ 520              		.loc 1 92 3 is_stmt 1 view .LVU133
+ 521              		.loc 1 92 22 is_stmt 0 view .LVU134
+ 522 0078 026E     		ldr	r2, [r0, #96]
+ 523              		.loc 1 92 76 view .LVU135
+ 524 007a 04EB4403 		add	r3, r4, r4, lsl #1
+ 525 007e 1B01     		lsls	r3, r3, #4
+ 526 0080 2249     		ldr	r1, .L17+36
+ 527 0082 CB5E     		ldrsh	r3, [r1, r3]
+ 528 0084 00EE103A 		vmov	s0, r3	@ int
+ 529              		.loc 1 92 3 view .LVU136
+ 530 0088 0021     		movs	r1, #0
+ 531 008a B8EEC00A 		vcvt.f32.s32	s0, s0
+ 532 008e 9047     		blx	r2
+ 533              	.LVL32:
+  93:Core/Src/pid_control_tuning.c **** 
+  94:Core/Src/pid_control_tuning.c ****   if(motor_ID == 0) set_moto_current(&hcan1, motor_pid[motor_ID].output, 0, 0, 0);
+ 534              		.loc 1 94 3 is_stmt 1 view .LVU137
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 12
+
+
+ 535              		.loc 1 94 5 is_stmt 0 view .LVU138
+ 536 0090 34B1     		cbz	r4, .L15
+ 537              	.L12:
+  95:Core/Src/pid_control_tuning.c ****   if(motor_ID == 1) set_moto_current(&hcan1, 0, motor_pid[motor_ID].output, 0, 0);
+ 538              		.loc 1 95 3 is_stmt 1 view .LVU139
+ 539              		.loc 1 95 5 is_stmt 0 view .LVU140
+ 540 0092 012C     		cmp	r4, #1
+ 541 0094 16D0     		beq	.L16
+ 542              	.LVL33:
+ 543              	.L13:
+  96:Core/Src/pid_control_tuning.c ****   //set_moto_current(&hcan1, 0, 0, 0, 0);
+  97:Core/Src/pid_control_tuning.c ****   //printf("%d\n", moto_chassis[0].speed_rpm);
+  98:Core/Src/pid_control_tuning.c ****   //printf("%d\n", moto_chassis[0].total_angle);
+  99:Core/Src/pid_control_tuning.c ****   //printf("%d, %f, %f\n", ABS_IMU_angle[motor_ID], abs_pid[motor_ID].output, motor_pid[motor_ID].o
+ 100:Core/Src/pid_control_tuning.c ****   /**printf("%d, %d\n", moto_chassis[motor_ID].angle, ABS_IMU_angle[motor_ID]);*/
+ 101:Core/Src/pid_control_tuning.c ****   HAL_Delay(1);
+ 544              		.loc 1 101 3 is_stmt 1 view .LVU141
+ 545 0096 0120     		movs	r0, #1
+ 546 0098 FFF7FEFF 		bl	HAL_Delay
+ 547              	.LVL34:
+ 102:Core/Src/pid_control_tuning.c **** }
+ 548              		.loc 1 102 1 is_stmt 0 view .LVU142
+ 549 009c 03B0     		add	sp, sp, #12
+ 550              	.LCFI9:
+ 551              		.cfi_remember_state
+ 552              		.cfi_def_cfa_offset 20
+ 553              		@ sp needed
+ 554 009e F0BD     		pop	{r4, r5, r6, r7, pc}
+ 555              	.LVL35:
+ 556              	.L15:
+ 557              	.LCFI10:
+ 558              		.cfi_restore_state
+  94:Core/Src/pid_control_tuning.c ****   if(motor_ID == 1) set_moto_current(&hcan1, 0, motor_pid[motor_ID].output, 0, 0);
+ 559              		.loc 1 94 21 is_stmt 1 discriminator 1 view .LVU143
+  94:Core/Src/pid_control_tuning.c ****   if(motor_ID == 1) set_moto_current(&hcan1, 0, motor_pid[motor_ID].output, 0, 0);
+ 560              		.loc 1 94 65 is_stmt 0 discriminator 1 view .LVU144
+ 561 00a0 194B     		ldr	r3, .L17+32
+ 562 00a2 6422     		movs	r2, #100
+ 563 00a4 02FB0433 		mla	r3, r2, r4, r3
+ 564 00a8 D3ED0C7A 		vldr.32	s15, [r3, #48]
+  94:Core/Src/pid_control_tuning.c ****   if(motor_ID == 1) set_moto_current(&hcan1, 0, motor_pid[motor_ID].output, 0, 0);
+ 565              		.loc 1 94 21 discriminator 1 view .LVU145
+ 566 00ac FDEEE77A 		vcvt.s32.f32	s15, s15
+ 567 00b0 0022     		movs	r2, #0
+ 568 00b2 0092     		str	r2, [sp]
+ 569 00b4 1346     		mov	r3, r2
+ 570 00b6 17EE901A 		vmov	r1, s15	@ int
+ 571 00ba 09B2     		sxth	r1, r1
+ 572 00bc 1448     		ldr	r0, .L17+40
+ 573 00be FFF7FEFF 		bl	set_moto_current
+ 574              	.LVL36:
+ 575 00c2 E6E7     		b	.L12
+ 576              	.L16:
+  95:Core/Src/pid_control_tuning.c ****   //set_moto_current(&hcan1, 0, 0, 0, 0);
+ 577              		.loc 1 95 21 is_stmt 1 discriminator 1 view .LVU146
+  95:Core/Src/pid_control_tuning.c ****   //set_moto_current(&hcan1, 0, 0, 0, 0);
+ 578              		.loc 1 95 68 is_stmt 0 discriminator 1 view .LVU147
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 13
+
+
+ 579 00c4 1048     		ldr	r0, .L17+32
+ 580 00c6 6423     		movs	r3, #100
+ 581 00c8 03FB0404 		mla	r4, r3, r4, r0
+ 582              	.LVL37:
+  95:Core/Src/pid_control_tuning.c ****   //set_moto_current(&hcan1, 0, 0, 0, 0);
+ 583              		.loc 1 95 68 discriminator 1 view .LVU148
+ 584 00cc D4ED0C7A 		vldr.32	s15, [r4, #48]
+  95:Core/Src/pid_control_tuning.c ****   //set_moto_current(&hcan1, 0, 0, 0, 0);
+ 585              		.loc 1 95 21 discriminator 1 view .LVU149
+ 586 00d0 FDEEE77A 		vcvt.s32.f32	s15, s15
+ 587 00d4 0021     		movs	r1, #0
+ 588 00d6 0091     		str	r1, [sp]
+ 589 00d8 0B46     		mov	r3, r1
+ 590 00da 17EE902A 		vmov	r2, s15	@ int
+ 591 00de 12B2     		sxth	r2, r2
+ 592 00e0 0B48     		ldr	r0, .L17+40
+ 593 00e2 FFF7FEFF 		bl	set_moto_current
+ 594              	.LVL38:
+ 595 00e6 D6E7     		b	.L13
+ 596              	.L18:
+ 597              		.align	2
+ 598              	.L17:
+ 599 00e8 00000000 		.word	.LANCHOR0
+ 600 00ec 00000046 		.word	1174405120
+ 601 00f0 0000B443 		.word	1135869952
+ 602 00f4 00000000 		.word	.LANCHOR1
+ 603 00f8 00806640 		.word	1080459264
+ 604 00fc 0000C040 		.word	1086324736
+ 605 0100 00807640 		.word	1081507840
+ 606 0104 00000000 		.word	.LANCHOR3
+ 607 0108 00000000 		.word	.LANCHOR4
+ 608 010c 00000000 		.word	moto_chassis
+ 609 0110 00000000 		.word	hcan1
+ 610              		.cfi_endproc
+ 611              	.LFE135:
+ 613              		.section	.text.Rel_angle_PID_test_loop,"ax",%progbits
+ 614              		.align	1
+ 615              		.global	Rel_angle_PID_test_loop
+ 616              		.syntax unified
+ 617              		.thumb
+ 618              		.thumb_func
+ 620              	Rel_angle_PID_test_loop:
+ 621              	.LVL39:
+ 622              	.LFB136:
+ 103:Core/Src/pid_control_tuning.c **** 
+ 104:Core/Src/pid_control_tuning.c **** //位置环PID效果测试
+ 105:Core/Src/pid_control_tuning.c **** void Rel_angle_PID_test_loop(int motor_ID)
+ 106:Core/Src/pid_control_tuning.c **** {
+ 623              		.loc 1 106 1 is_stmt 1 view -0
+ 624              		.cfi_startproc
+ 625              		@ args = 0, pretend = 0, frame = 0
+ 626              		@ frame_needed = 0, uses_anonymous_args = 0
+ 627              		.loc 1 106 1 is_stmt 0 view .LVU151
+ 628 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 629              	.LCFI11:
+ 630              		.cfi_def_cfa_offset 24
+ 631              		.cfi_offset 4, -24
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 14
+
+
+ 632              		.cfi_offset 5, -20
+ 633              		.cfi_offset 6, -16
+ 634              		.cfi_offset 7, -12
+ 635              		.cfi_offset 8, -8
+ 636              		.cfi_offset 14, -4
+ 637 0004 82B0     		sub	sp, sp, #8
+ 638              	.LCFI12:
+ 639              		.cfi_def_cfa_offset 32
+ 640 0006 0446     		mov	r4, r0
+ 107:Core/Src/pid_control_tuning.c ****   angle_pid[motor_ID].target = 7000;
+ 641              		.loc 1 107 3 is_stmt 1 view .LVU152
+ 642              		.loc 1 107 30 is_stmt 0 view .LVU153
+ 643 0008 6420     		movs	r0, #100
+ 644              	.LVL40:
+ 645              		.loc 1 107 30 view .LVU154
+ 646 000a 00FB04F6 		mul	r6, r0, r4
+ 647 000e 274D     		ldr	r5, .L25
+ 648 0010 3544     		add	r5, r5, r6
+ 649 0012 274B     		ldr	r3, .L25+4
+ 650 0014 6B60     		str	r3, [r5, #4]	@ float
+ 108:Core/Src/pid_control_tuning.c ****   angle_pid[motor_ID].f_cal_pid(&angle_pid[motor_ID], moto_chassis[motor_ID].angle, 8192);
+ 651              		.loc 1 108 3 is_stmt 1 view .LVU155
+ 652              		.loc 1 108 22 is_stmt 0 view .LVU156
+ 653 0016 2A6E     		ldr	r2, [r5, #96]
+ 654              		.loc 1 108 77 view .LVU157
+ 655 0018 264F     		ldr	r7, .L25+8
+ 656 001a 04EB4403 		add	r3, r4, r4, lsl #1
+ 657 001e 4FEA0318 		lsl	r8, r3, #4
+ 658 0022 07EB0313 		add	r3, r7, r3, lsl #4
+ 659 0026 9B89     		ldrh	r3, [r3, #12]
+ 660 0028 00EE103A 		vmov	s0, r3	@ int
+ 661              		.loc 1 108 3 view .LVU158
+ 662 002c 4FF40051 		mov	r1, #8192
+ 663 0030 B8EE400A 		vcvt.f32.u32	s0, s0
+ 664 0034 2846     		mov	r0, r5
+ 665 0036 9047     		blx	r2
+ 666              	.LVL41:
+ 109:Core/Src/pid_control_tuning.c ****   //printf("%d\n", (int)angle_pid.output);
+ 110:Core/Src/pid_control_tuning.c **** 
+ 111:Core/Src/pid_control_tuning.c ****   motor_pid[motor_ID].target = angle_pid[motor_ID].output; 																							
+ 667              		.loc 1 111 3 is_stmt 1 view .LVU159
+ 668              		.loc 1 111 51 is_stmt 0 view .LVU160
+ 669 0038 2B6B     		ldr	r3, [r5, #48]	@ float
+ 670              		.loc 1 111 30 view .LVU161
+ 671 003a 1F48     		ldr	r0, .L25+12
+ 672 003c 3044     		add	r0, r0, r6
+ 673 003e 4360     		str	r3, [r0, #4]	@ float
+ 112:Core/Src/pid_control_tuning.c ****   motor_pid[motor_ID].f_cal_pid(&motor_pid[motor_ID],moto_chassis[motor_ID].speed_rpm, 0);
+ 674              		.loc 1 112 3 is_stmt 1 view .LVU162
+ 675              		.loc 1 112 22 is_stmt 0 view .LVU163
+ 676 0040 036E     		ldr	r3, [r0, #96]
+ 677              		.loc 1 112 76 view .LVU164
+ 678 0042 37F90820 		ldrsh	r2, [r7, r8]
+ 679 0046 00EE102A 		vmov	s0, r2	@ int
+ 680              		.loc 1 112 3 view .LVU165
+ 681 004a 0021     		movs	r1, #0
+ 682 004c B8EEC00A 		vcvt.f32.s32	s0, s0
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 15
+
+
+ 683 0050 9847     		blx	r3
+ 684              	.LVL42:
+ 113:Core/Src/pid_control_tuning.c **** 
+ 114:Core/Src/pid_control_tuning.c ****   if(motor_ID == 0) set_moto_current(&hcan1, motor_pid[motor_ID].output, 0, 0, 0);
+ 685              		.loc 1 114 3 is_stmt 1 view .LVU166
+ 686              		.loc 1 114 5 is_stmt 0 view .LVU167
+ 687 0052 3CB1     		cbz	r4, .L23
+ 688              	.L20:
+ 115:Core/Src/pid_control_tuning.c ****   if(motor_ID == 1) set_moto_current(&hcan1, 0, motor_pid[motor_ID].output, 0, 0);
+ 689              		.loc 1 115 3 is_stmt 1 view .LVU168
+ 690              		.loc 1 115 5 is_stmt 0 view .LVU169
+ 691 0054 012C     		cmp	r4, #1
+ 692 0056 17D0     		beq	.L24
+ 693              	.LVL43:
+ 694              	.L21:
+ 116:Core/Src/pid_control_tuning.c ****   //set_moto_current(&hcan1, 0, 0, 0, 0);
+ 117:Core/Src/pid_control_tuning.c ****   //printf("%d\n", moto_chassis[0].speed_rpm);
+ 118:Core/Src/pid_control_tuning.c ****   //printf("%d\n", moto_chassis[0].total_angle);
+ 119:Core/Src/pid_control_tuning.c ****   /**printf("%f, ", (float)j);*/
+ 120:Core/Src/pid_control_tuning.c ****   HAL_Delay(1);
+ 695              		.loc 1 120 3 is_stmt 1 view .LVU170
+ 696 0058 0120     		movs	r0, #1
+ 697 005a FFF7FEFF 		bl	HAL_Delay
+ 698              	.LVL44:
+ 121:Core/Src/pid_control_tuning.c ****   /**printf("%d, %d, %d, %d, %f, %f, %d\n", */
+ 122:Core/Src/pid_control_tuning.c ****   /**                  speed_set, moto_chassis[motor_ID].angle, */
+ 123:Core/Src/pid_control_tuning.c ****   /**                  (int)motor_pid[motor_ID].output, */
+ 124:Core/Src/pid_control_tuning.c ****   /**                  (int)motor_pid[motor_ID].iout, */
+ 125:Core/Src/pid_control_tuning.c ****   /**                  angle_pid[motor_ID].output, */
+ 126:Core/Src/pid_control_tuning.c ****   /**                  IMU_Angle[motor_ID]);*/
+ 127:Core/Src/pid_control_tuning.c **** }
+ 699              		.loc 1 127 1 is_stmt 0 view .LVU171
+ 700 005e 02B0     		add	sp, sp, #8
+ 701              	.LCFI13:
+ 702              		.cfi_remember_state
+ 703              		.cfi_def_cfa_offset 24
+ 704              		@ sp needed
+ 705 0060 BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 706              	.LVL45:
+ 707              	.L23:
+ 708              	.LCFI14:
+ 709              		.cfi_restore_state
+ 114:Core/Src/pid_control_tuning.c ****   if(motor_ID == 1) set_moto_current(&hcan1, 0, motor_pid[motor_ID].output, 0, 0);
+ 710              		.loc 1 114 21 is_stmt 1 discriminator 1 view .LVU172
+ 114:Core/Src/pid_control_tuning.c ****   if(motor_ID == 1) set_moto_current(&hcan1, 0, motor_pid[motor_ID].output, 0, 0);
+ 711              		.loc 1 114 65 is_stmt 0 discriminator 1 view .LVU173
+ 712 0064 144B     		ldr	r3, .L25+12
+ 713 0066 6422     		movs	r2, #100
+ 714 0068 02FB0433 		mla	r3, r2, r4, r3
+ 715 006c D3ED0C7A 		vldr.32	s15, [r3, #48]
+ 114:Core/Src/pid_control_tuning.c ****   if(motor_ID == 1) set_moto_current(&hcan1, 0, motor_pid[motor_ID].output, 0, 0);
+ 716              		.loc 1 114 21 discriminator 1 view .LVU174
+ 717 0070 FDEEE77A 		vcvt.s32.f32	s15, s15
+ 718 0074 0022     		movs	r2, #0
+ 719 0076 0092     		str	r2, [sp]
+ 720 0078 1346     		mov	r3, r2
+ 721 007a 17EE901A 		vmov	r1, s15	@ int
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 16
+
+
+ 722 007e 09B2     		sxth	r1, r1
+ 723 0080 0E48     		ldr	r0, .L25+16
+ 724 0082 FFF7FEFF 		bl	set_moto_current
+ 725              	.LVL46:
+ 726 0086 E5E7     		b	.L20
+ 727              	.L24:
+ 115:Core/Src/pid_control_tuning.c ****   //set_moto_current(&hcan1, 0, 0, 0, 0);
+ 728              		.loc 1 115 21 is_stmt 1 discriminator 1 view .LVU175
+ 115:Core/Src/pid_control_tuning.c ****   //set_moto_current(&hcan1, 0, 0, 0, 0);
+ 729              		.loc 1 115 68 is_stmt 0 discriminator 1 view .LVU176
+ 730 0088 0B48     		ldr	r0, .L25+12
+ 731 008a 6423     		movs	r3, #100
+ 732 008c 03FB0404 		mla	r4, r3, r4, r0
+ 733              	.LVL47:
+ 115:Core/Src/pid_control_tuning.c ****   //set_moto_current(&hcan1, 0, 0, 0, 0);
+ 734              		.loc 1 115 68 discriminator 1 view .LVU177
+ 735 0090 D4ED0C7A 		vldr.32	s15, [r4, #48]
+ 115:Core/Src/pid_control_tuning.c ****   //set_moto_current(&hcan1, 0, 0, 0, 0);
+ 736              		.loc 1 115 21 discriminator 1 view .LVU178
+ 737 0094 FDEEE77A 		vcvt.s32.f32	s15, s15
+ 738 0098 0021     		movs	r1, #0
+ 739 009a 0091     		str	r1, [sp]
+ 740 009c 0B46     		mov	r3, r1
+ 741 009e 17EE902A 		vmov	r2, s15	@ int
+ 742 00a2 12B2     		sxth	r2, r2
+ 743 00a4 0548     		ldr	r0, .L25+16
+ 744 00a6 FFF7FEFF 		bl	set_moto_current
+ 745              	.LVL48:
+ 746 00aa D5E7     		b	.L21
+ 747              	.L26:
+ 748              		.align	2
+ 749              	.L25:
+ 750 00ac 00000000 		.word	.LANCHOR7
+ 751 00b0 00C0DA45 		.word	1171963904
+ 752 00b4 00000000 		.word	moto_chassis
+ 753 00b8 00000000 		.word	.LANCHOR4
+ 754 00bc 00000000 		.word	hcan1
+ 755              		.cfi_endproc
+ 756              	.LFE136:
+ 758              		.section	.text.speed_loop_PID_tuning,"ax",%progbits
+ 759              		.align	1
+ 760              		.global	speed_loop_PID_tuning
+ 761              		.syntax unified
+ 762              		.thumb
+ 763              		.thumb_func
+ 765              	speed_loop_PID_tuning:
+ 766              	.LVL49:
+ 767              	.LFB137:
+ 128:Core/Src/pid_control_tuning.c **** 
+ 129:Core/Src/pid_control_tuning.c **** //速度环科学调参（编码器角速度）
+ 130:Core/Src/pid_control_tuning.c **** void speed_loop_PID_tuning(int motor_ID)
+ 131:Core/Src/pid_control_tuning.c **** {
+ 768              		.loc 1 131 1 is_stmt 1 view -0
+ 769              		.cfi_startproc
+ 770              		@ args = 0, pretend = 0, frame = 0
+ 771              		@ frame_needed = 0, uses_anonymous_args = 0
+ 772              		.loc 1 131 1 is_stmt 0 view .LVU180
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 17
+
+
+ 773 0000 10B5     		push	{r4, lr}
+ 774              	.LCFI15:
+ 775              		.cfi_def_cfa_offset 8
+ 776              		.cfi_offset 4, -8
+ 777              		.cfi_offset 14, -4
+ 778 0002 82B0     		sub	sp, sp, #8
+ 779              	.LCFI16:
+ 780              		.cfi_def_cfa_offset 16
+ 781 0004 0446     		mov	r4, r0
+ 132:Core/Src/pid_control_tuning.c ****   speed = moto_chassis[motor_ID].speed_rpm;
+ 782              		.loc 1 132 3 is_stmt 1 view .LVU181
+ 783              		.loc 1 132 33 is_stmt 0 view .LVU182
+ 784 0006 00EB4003 		add	r3, r0, r0, lsl #1
+ 785 000a 1B01     		lsls	r3, r3, #4
+ 786 000c 194A     		ldr	r2, .L36
+ 787 000e D25E     		ldrsh	r2, [r2, r3]
+ 788              		.loc 1 132 9 view .LVU183
+ 789 0010 194B     		ldr	r3, .L36+4
+ 790 0012 1A60     		str	r2, [r3]
+ 133:Core/Src/pid_control_tuning.c ****   time++;
+ 791              		.loc 1 133 3 is_stmt 1 view .LVU184
+ 792              		.loc 1 133 7 is_stmt 0 view .LVU185
+ 793 0014 194A     		ldr	r2, .L36+8
+ 794 0016 1368     		ldr	r3, [r2]
+ 795 0018 0133     		adds	r3, r3, #1
+ 796 001a 1360     		str	r3, [r2]
+ 134:Core/Src/pid_control_tuning.c ****   if(i <= 400) current = 0;
+ 797              		.loc 1 134 3 is_stmt 1 view .LVU186
+ 798              		.loc 1 134 8 is_stmt 0 view .LVU187
+ 799 001c 184B     		ldr	r3, .L36+12
+ 800 001e 1B68     		ldr	r3, [r3]
+ 801              		.loc 1 134 5 view .LVU188
+ 802 0020 B3F5C87F 		cmp	r3, #400
+ 803 0024 0DDC     		bgt	.L28
+ 804              		.loc 1 134 16 is_stmt 1 discriminator 1 view .LVU189
+ 805              		.loc 1 134 24 is_stmt 0 discriminator 1 view .LVU190
+ 806 0026 174A     		ldr	r2, .L36+16
+ 807 0028 0021     		movs	r1, #0
+ 808 002a 1160     		str	r1, [r2]
+ 809              	.L29:
+ 135:Core/Src/pid_control_tuning.c ****   else current = 1500;
+ 136:Core/Src/pid_control_tuning.c **** 
+ 137:Core/Src/pid_control_tuning.c ****   if(i >= 800) i = 0;
+ 810              		.loc 1 137 3 is_stmt 1 view .LVU191
+ 811              		.loc 1 137 5 is_stmt 0 view .LVU192
+ 812 002c B3F5487F 		cmp	r3, #800
+ 813 0030 02DB     		blt	.L30
+ 814              		.loc 1 137 16 is_stmt 1 discriminator 1 view .LVU193
+ 815              		.loc 1 137 18 is_stmt 0 discriminator 1 view .LVU194
+ 816 0032 134B     		ldr	r3, .L36+12
+ 817 0034 0022     		movs	r2, #0
+ 818 0036 1A60     		str	r2, [r3]
+ 819              	.L30:
+ 138:Core/Src/pid_control_tuning.c **** 
+ 139:Core/Src/pid_control_tuning.c ****   /**printf("%f, ", (float)j);*/
+ 140:Core/Src/pid_control_tuning.c ****   /**printf("%d, %d\n", current, speed);*/
+ 141:Core/Src/pid_control_tuning.c ****   if(motor_ID == 0) set_moto_current(&hcan1, current, 0, 0, 0);
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 18
+
+
+ 820              		.loc 1 141 3 is_stmt 1 view .LVU195
+ 821              		.loc 1 141 5 is_stmt 0 view .LVU196
+ 822 0038 44B1     		cbz	r4, .L34
+ 823              	.LVL50:
+ 824              	.L31:
+ 142:Core/Src/pid_control_tuning.c ****   if(motor_ID == 1) set_moto_current(&hcan1, 0, current, 0, 0);
+ 825              		.loc 1 142 3 is_stmt 1 view .LVU197
+ 826              		.loc 1 142 5 is_stmt 0 view .LVU198
+ 827 003a 012C     		cmp	r4, #1
+ 828 003c 10D0     		beq	.L35
+ 829              	.L27:
+ 143:Core/Src/pid_control_tuning.c **** }
+ 830              		.loc 1 143 1 view .LVU199
+ 831 003e 02B0     		add	sp, sp, #8
+ 832              	.LCFI17:
+ 833              		.cfi_remember_state
+ 834              		.cfi_def_cfa_offset 8
+ 835              		@ sp needed
+ 836 0040 10BD     		pop	{r4, pc}
+ 837              	.LVL51:
+ 838              	.L28:
+ 839              	.LCFI18:
+ 840              		.cfi_restore_state
+ 135:Core/Src/pid_control_tuning.c **** 
+ 841              		.loc 1 135 8 is_stmt 1 view .LVU200
+ 135:Core/Src/pid_control_tuning.c **** 
+ 842              		.loc 1 135 16 is_stmt 0 view .LVU201
+ 843 0042 104A     		ldr	r2, .L36+16
+ 844 0044 40F2DC51 		movw	r1, #1500
+ 845 0048 1160     		str	r1, [r2]
+ 846 004a EFE7     		b	.L29
+ 847              	.L34:
+ 141:Core/Src/pid_control_tuning.c ****   if(motor_ID == 1) set_moto_current(&hcan1, 0, current, 0, 0);
+ 848              		.loc 1 141 21 is_stmt 1 discriminator 1 view .LVU202
+ 849 004c 0022     		movs	r2, #0
+ 850 004e 0092     		str	r2, [sp]
+ 851 0050 1346     		mov	r3, r2
+ 852 0052 0C49     		ldr	r1, .L36+16
+ 853 0054 B1F90010 		ldrsh	r1, [r1]
+ 854 0058 0B48     		ldr	r0, .L36+20
+ 855              	.LVL52:
+ 141:Core/Src/pid_control_tuning.c ****   if(motor_ID == 1) set_moto_current(&hcan1, 0, current, 0, 0);
+ 856              		.loc 1 141 21 is_stmt 0 discriminator 1 view .LVU203
+ 857 005a FFF7FEFF 		bl	set_moto_current
+ 858              	.LVL53:
+ 859 005e ECE7     		b	.L31
+ 860              	.L35:
+ 142:Core/Src/pid_control_tuning.c **** }
+ 861              		.loc 1 142 21 is_stmt 1 discriminator 1 view .LVU204
+ 862 0060 0021     		movs	r1, #0
+ 863 0062 0091     		str	r1, [sp]
+ 864 0064 0B46     		mov	r3, r1
+ 865 0066 074A     		ldr	r2, .L36+16
+ 866 0068 B2F90020 		ldrsh	r2, [r2]
+ 867 006c 0648     		ldr	r0, .L36+20
+ 868 006e FFF7FEFF 		bl	set_moto_current
+ 869              	.LVL54:
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 19
+
+
+ 870              		.loc 1 143 1 is_stmt 0 discriminator 1 view .LVU205
+ 871 0072 E4E7     		b	.L27
+ 872              	.L37:
+ 873              		.align	2
+ 874              	.L36:
+ 875 0074 00000000 		.word	moto_chassis
+ 876 0078 00000000 		.word	.LANCHOR8
+ 877 007c 00000000 		.word	.LANCHOR9
+ 878 0080 00000000 		.word	.LANCHOR5
+ 879 0084 00000000 		.word	.LANCHOR10
+ 880 0088 00000000 		.word	hcan1
+ 881              		.cfi_endproc
+ 882              	.LFE137:
+ 884              		.section	.text.Rel_angleloop_PID_tuning,"ax",%progbits
+ 885              		.align	1
+ 886              		.global	Rel_angleloop_PID_tuning
+ 887              		.syntax unified
+ 888              		.thumb
+ 889              		.thumb_func
+ 891              	Rel_angleloop_PID_tuning:
+ 892              	.LVL55:
+ 893              	.LFB138:
+ 144:Core/Src/pid_control_tuning.c **** 
+ 145:Core/Src/pid_control_tuning.c **** //编码器位置环科学调参
+ 146:Core/Src/pid_control_tuning.c **** void Rel_angleloop_PID_tuning(int motor_ID)
+ 147:Core/Src/pid_control_tuning.c **** {
+ 894              		.loc 1 147 1 is_stmt 1 view -0
+ 895              		.cfi_startproc
+ 896              		@ args = 0, pretend = 0, frame = 0
+ 897              		@ frame_needed = 0, uses_anonymous_args = 0
+ 898              		.loc 1 147 1 is_stmt 0 view .LVU207
+ 899 0000 10B5     		push	{r4, lr}
+ 900              	.LCFI19:
+ 901              		.cfi_def_cfa_offset 8
+ 902              		.cfi_offset 4, -8
+ 903              		.cfi_offset 14, -4
+ 904 0002 82B0     		sub	sp, sp, #8
+ 905              	.LCFI20:
+ 906              		.cfi_def_cfa_offset 16
+ 907 0004 0446     		mov	r4, r0
+ 148:Core/Src/pid_control_tuning.c ****   if(i <= 100) speed_set = 0;
+ 908              		.loc 1 148 3 is_stmt 1 view .LVU208
+ 909              		.loc 1 148 8 is_stmt 0 view .LVU209
+ 910 0006 304B     		ldr	r3, .L48
+ 911 0008 1B68     		ldr	r3, [r3]
+ 912              		.loc 1 148 5 view .LVU210
+ 913 000a 642B     		cmp	r3, #100
+ 914 000c 25DC     		bgt	.L39
+ 915              		.loc 1 148 16 is_stmt 1 discriminator 1 view .LVU211
+ 916              		.loc 1 148 26 is_stmt 0 discriminator 1 view .LVU212
+ 917 000e 2F4A     		ldr	r2, .L48+4
+ 918 0010 0021     		movs	r1, #0
+ 919 0012 1160     		str	r1, [r2]
+ 920              	.L40:
+ 149:Core/Src/pid_control_tuning.c ****   else if(i >100 && i<=1100) speed_set = -15;
+ 150:Core/Src/pid_control_tuning.c ****   else if(i >1100 && i<=2100) speed_set = 15;
+ 151:Core/Src/pid_control_tuning.c ****   if(i > 2100) i = 0;
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 20
+
+
+ 921              		.loc 1 151 3 is_stmt 1 view .LVU213
+ 922              		.loc 1 151 5 is_stmt 0 view .LVU214
+ 923 0014 40F63402 		movw	r2, #2100
+ 924 0018 9342     		cmp	r3, r2
+ 925 001a 02DD     		ble	.L42
+ 926              		.loc 1 151 16 is_stmt 1 discriminator 1 view .LVU215
+ 927              		.loc 1 151 18 is_stmt 0 discriminator 1 view .LVU216
+ 928 001c 2A4B     		ldr	r3, .L48
+ 929 001e 0022     		movs	r2, #0
+ 930 0020 1A60     		str	r2, [r3]
+ 931              	.L42:
+ 152:Core/Src/pid_control_tuning.c ****   //speed_set = 25;
+ 153:Core/Src/pid_control_tuning.c ****   
+ 154:Core/Src/pid_control_tuning.c ****   motor_pid[motor_ID].target = speed_set; 																							
+ 932              		.loc 1 154 3 is_stmt 1 view .LVU217
+ 933              		.loc 1 154 30 is_stmt 0 view .LVU218
+ 934 0022 2B48     		ldr	r0, .L48+8
+ 935              	.LVL56:
+ 936              		.loc 1 154 30 view .LVU219
+ 937 0024 6423     		movs	r3, #100
+ 938 0026 03FB0400 		mla	r0, r3, r4, r0
+ 939 002a 284B     		ldr	r3, .L48+4
+ 940 002c D3ED007A 		vldr.32	s15, [r3]	@ int
+ 941 0030 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 942 0034 C0ED017A 		vstr.32	s15, [r0, #4]
+ 155:Core/Src/pid_control_tuning.c ****   motor_pid[motor_ID].f_cal_pid(&motor_pid[motor_ID], moto_chassis[motor_ID].speed_rpm, 0);
+ 943              		.loc 1 155 3 is_stmt 1 view .LVU220
+ 944              		.loc 1 155 22 is_stmt 0 view .LVU221
+ 945 0038 026E     		ldr	r2, [r0, #96]
+ 946              		.loc 1 155 77 view .LVU222
+ 947 003a 04EB4403 		add	r3, r4, r4, lsl #1
+ 948 003e 1B01     		lsls	r3, r3, #4
+ 949 0040 2449     		ldr	r1, .L48+12
+ 950 0042 CB5E     		ldrsh	r3, [r1, r3]
+ 951 0044 00EE103A 		vmov	s0, r3	@ int
+ 952              		.loc 1 155 3 view .LVU223
+ 953 0048 0021     		movs	r1, #0
+ 954 004a B8EEC00A 		vcvt.f32.s32	s0, s0
+ 955 004e 9047     		blx	r2
+ 956              	.LVL57:
+ 156:Core/Src/pid_control_tuning.c ****   if(motor_ID == 0) set_moto_current(&hcan1, motor_pid[motor_ID].output, 0, 0, 0);
+ 957              		.loc 1 156 3 is_stmt 1 view .LVU224
+ 958              		.loc 1 156 5 is_stmt 0 view .LVU225
+ 959 0050 B4B1     		cbz	r4, .L46
+ 960              	.L43:
+ 157:Core/Src/pid_control_tuning.c ****   if(motor_ID == 1) set_moto_current(&hcan1, 0, motor_pid[motor_ID].output, 0, 0);
+ 961              		.loc 1 157 3 is_stmt 1 view .LVU226
+ 962              		.loc 1 157 5 is_stmt 0 view .LVU227
+ 963 0052 012C     		cmp	r4, #1
+ 964 0054 26D0     		beq	.L47
+ 965              	.LVL58:
+ 966              	.L38:
+ 158:Core/Src/pid_control_tuning.c ****   //set_moto_current(&hcan1, 0, 0, 0, 0);
+ 159:Core/Src/pid_control_tuning.c ****   //printf("%d\n", moto_chassis[0].speed_rpm);
+ 160:Core/Src/pid_control_tuning.c ****   //printf("%d\n", moto_chassis[0].total_angle);
+ 161:Core/Src/pid_control_tuning.c ****   /**printf("%f, ", (float)j);*/
+ 162:Core/Src/pid_control_tuning.c ****   /**printf("%d, %d\n", speed_set, moto_chassis[motor_ID].total_angle);*/
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 21
+
+
+ 163:Core/Src/pid_control_tuning.c **** }
+ 967              		.loc 1 163 1 view .LVU228
+ 968 0056 02B0     		add	sp, sp, #8
+ 969              	.LCFI21:
+ 970              		.cfi_remember_state
+ 971              		.cfi_def_cfa_offset 8
+ 972              		@ sp needed
+ 973 0058 10BD     		pop	{r4, pc}
+ 974              	.LVL59:
+ 975              	.L39:
+ 976              	.LCFI22:
+ 977              		.cfi_restore_state
+ 149:Core/Src/pid_control_tuning.c ****   else if(i >1100 && i<=2100) speed_set = 15;
+ 978              		.loc 1 149 8 is_stmt 1 view .LVU229
+ 149:Core/Src/pid_control_tuning.c ****   else if(i >1100 && i<=2100) speed_set = 15;
+ 979              		.loc 1 149 18 is_stmt 0 view .LVU230
+ 980 005a A3F16502 		sub	r2, r3, #101
+ 149:Core/Src/pid_control_tuning.c ****   else if(i >1100 && i<=2100) speed_set = 15;
+ 981              		.loc 1 149 10 view .LVU231
+ 982 005e B2F57A7F 		cmp	r2, #1000
+ 983 0062 04D2     		bcs	.L41
+ 149:Core/Src/pid_control_tuning.c ****   else if(i >1100 && i<=2100) speed_set = 15;
+ 984              		.loc 1 149 30 is_stmt 1 discriminator 1 view .LVU232
+ 149:Core/Src/pid_control_tuning.c ****   else if(i >1100 && i<=2100) speed_set = 15;
+ 985              		.loc 1 149 40 is_stmt 0 discriminator 1 view .LVU233
+ 986 0064 194A     		ldr	r2, .L48+4
+ 987 0066 6FF00E01 		mvn	r1, #14
+ 988 006a 1160     		str	r1, [r2]
+ 989 006c D2E7     		b	.L40
+ 990              	.L41:
+ 150:Core/Src/pid_control_tuning.c ****   if(i > 2100) i = 0;
+ 991              		.loc 1 150 8 is_stmt 1 view .LVU234
+ 150:Core/Src/pid_control_tuning.c ****   if(i > 2100) i = 0;
+ 992              		.loc 1 150 19 is_stmt 0 view .LVU235
+ 993 006e A3F24D42 		subw	r2, r3, #1101
+ 150:Core/Src/pid_control_tuning.c ****   if(i > 2100) i = 0;
+ 994              		.loc 1 150 10 view .LVU236
+ 995 0072 B2F57A7F 		cmp	r2, #1000
+ 996 0076 CDD2     		bcs	.L40
+ 150:Core/Src/pid_control_tuning.c ****   if(i > 2100) i = 0;
+ 997              		.loc 1 150 31 is_stmt 1 discriminator 1 view .LVU237
+ 150:Core/Src/pid_control_tuning.c ****   if(i > 2100) i = 0;
+ 998              		.loc 1 150 41 is_stmt 0 discriminator 1 view .LVU238
+ 999 0078 144A     		ldr	r2, .L48+4
+ 1000 007a 0F21     		movs	r1, #15
+ 1001 007c 1160     		str	r1, [r2]
+ 1002 007e C9E7     		b	.L40
+ 1003              	.LVL60:
+ 1004              	.L46:
+ 156:Core/Src/pid_control_tuning.c ****   if(motor_ID == 1) set_moto_current(&hcan1, 0, motor_pid[motor_ID].output, 0, 0);
+ 1005              		.loc 1 156 21 is_stmt 1 discriminator 1 view .LVU239
+ 156:Core/Src/pid_control_tuning.c ****   if(motor_ID == 1) set_moto_current(&hcan1, 0, motor_pid[motor_ID].output, 0, 0);
+ 1006              		.loc 1 156 65 is_stmt 0 discriminator 1 view .LVU240
+ 1007 0080 134B     		ldr	r3, .L48+8
+ 1008 0082 6422     		movs	r2, #100
+ 1009 0084 02FB0433 		mla	r3, r2, r4, r3
+ 1010 0088 D3ED0C7A 		vldr.32	s15, [r3, #48]
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 22
+
+
+ 156:Core/Src/pid_control_tuning.c ****   if(motor_ID == 1) set_moto_current(&hcan1, 0, motor_pid[motor_ID].output, 0, 0);
+ 1011              		.loc 1 156 21 discriminator 1 view .LVU241
+ 1012 008c FDEEE77A 		vcvt.s32.f32	s15, s15
+ 1013 0090 0022     		movs	r2, #0
+ 1014 0092 0092     		str	r2, [sp]
+ 1015 0094 1346     		mov	r3, r2
+ 1016 0096 17EE901A 		vmov	r1, s15	@ int
+ 1017 009a 09B2     		sxth	r1, r1
+ 1018 009c 0E48     		ldr	r0, .L48+16
+ 1019 009e FFF7FEFF 		bl	set_moto_current
+ 1020              	.LVL61:
+ 1021 00a2 D6E7     		b	.L43
+ 1022              	.L47:
+ 157:Core/Src/pid_control_tuning.c ****   //set_moto_current(&hcan1, 0, 0, 0, 0);
+ 1023              		.loc 1 157 21 is_stmt 1 discriminator 1 view .LVU242
+ 157:Core/Src/pid_control_tuning.c ****   //set_moto_current(&hcan1, 0, 0, 0, 0);
+ 1024              		.loc 1 157 68 is_stmt 0 discriminator 1 view .LVU243
+ 1025 00a4 0A48     		ldr	r0, .L48+8
+ 1026 00a6 6423     		movs	r3, #100
+ 1027 00a8 03FB0404 		mla	r4, r3, r4, r0
+ 1028              	.LVL62:
+ 157:Core/Src/pid_control_tuning.c ****   //set_moto_current(&hcan1, 0, 0, 0, 0);
+ 1029              		.loc 1 157 68 discriminator 1 view .LVU244
+ 1030 00ac D4ED0C7A 		vldr.32	s15, [r4, #48]
+ 157:Core/Src/pid_control_tuning.c ****   //set_moto_current(&hcan1, 0, 0, 0, 0);
+ 1031              		.loc 1 157 21 discriminator 1 view .LVU245
+ 1032 00b0 FDEEE77A 		vcvt.s32.f32	s15, s15
+ 1033 00b4 0021     		movs	r1, #0
+ 1034 00b6 0091     		str	r1, [sp]
+ 1035 00b8 0B46     		mov	r3, r1
+ 1036 00ba 17EE902A 		vmov	r2, s15	@ int
+ 1037 00be 12B2     		sxth	r2, r2
+ 1038 00c0 0548     		ldr	r0, .L48+16
+ 1039 00c2 FFF7FEFF 		bl	set_moto_current
+ 1040              	.LVL63:
+ 1041              		.loc 1 163 1 discriminator 1 view .LVU246
+ 1042 00c6 C6E7     		b	.L38
+ 1043              	.L49:
+ 1044              		.align	2
+ 1045              	.L48:
+ 1046 00c8 00000000 		.word	.LANCHOR5
+ 1047 00cc 00000000 		.word	.LANCHOR11
+ 1048 00d0 00000000 		.word	.LANCHOR4
+ 1049 00d4 00000000 		.word	moto_chassis
+ 1050 00d8 00000000 		.word	hcan1
+ 1051              		.cfi_endproc
+ 1052              	.LFE138:
+ 1054              		.section	.text.Abs_anglelop_PID_tuning,"ax",%progbits
+ 1055              		.align	1
+ 1056              		.global	Abs_anglelop_PID_tuning
+ 1057              		.syntax unified
+ 1058              		.thumb
+ 1059              		.thumb_func
+ 1061              	Abs_anglelop_PID_tuning:
+ 1062              	.LVL64:
+ 1063              	.LFB139:
+ 164:Core/Src/pid_control_tuning.c **** 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 23
+
+
+ 165:Core/Src/pid_control_tuning.c **** //陀螺仪位置环科学调参
+ 166:Core/Src/pid_control_tuning.c **** void Abs_anglelop_PID_tuning(int motor_ID)
+ 167:Core/Src/pid_control_tuning.c **** {
+ 1064              		.loc 1 167 1 is_stmt 1 view -0
+ 1065              		.cfi_startproc
+ 1066              		@ args = 0, pretend = 0, frame = 0
+ 1067              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1068              		.loc 1 167 1 is_stmt 0 view .LVU248
+ 1069 0000 30B5     		push	{r4, r5, lr}
+ 1070              	.LCFI23:
+ 1071              		.cfi_def_cfa_offset 12
+ 1072              		.cfi_offset 4, -12
+ 1073              		.cfi_offset 5, -8
+ 1074              		.cfi_offset 14, -4
+ 1075 0002 83B0     		sub	sp, sp, #12
+ 1076              	.LCFI24:
+ 1077              		.cfi_def_cfa_offset 24
+ 1078 0004 0446     		mov	r4, r0
+ 168:Core/Src/pid_control_tuning.c ****   //IMU归一化
+ 169:Core/Src/pid_control_tuning.c ****   ABS_IMU_angle[0] = (int)((IMU_Angle[2]*8192)/360); //yaw
+ 1079              		.loc 1 169 3 is_stmt 1 view .LVU249
+ 1080              		.loc 1 169 38 is_stmt 0 view .LVU250
+ 1081 0006 424B     		ldr	r3, .L60
+ 1082 0008 93ED027A 		vldr.32	s14, [r3, #8]
+ 1083              		.loc 1 169 41 view .LVU251
+ 1084 000c DFED417A 		vldr.32	s15, .L60+4
+ 1085 0010 27EE277A 		vmul.f32	s14, s14, s15
+ 1086              		.loc 1 169 47 view .LVU252
+ 1087 0014 DFED406A 		vldr.32	s13, .L60+8
+ 1088 0018 C7EE267A 		vdiv.f32	s15, s14, s13
+ 1089              		.loc 1 169 22 view .LVU253
+ 1090 001c FDEEE77A 		vcvt.s32.f32	s15, s15
+ 1091              		.loc 1 169 20 view .LVU254
+ 1092 0020 3E4D     		ldr	r5, .L60+12
+ 1093 0022 17EE902A 		vmov	r2, s15	@ int
+ 1094 0026 2A80     		strh	r2, [r5]	@ movhi
+ 170:Core/Src/pid_control_tuning.c ****   ABS_IMU_angle[1] = (int)(((IMU_Angle[0]+180.0)*8192)/360); //pitch
+ 1095              		.loc 1 170 3 is_stmt 1 view .LVU255
+ 1096              		.loc 1 170 39 is_stmt 0 view .LVU256
+ 1097 0028 1868     		ldr	r0, [r3]	@ float
+ 1098              	.LVL65:
+ 1099              		.loc 1 170 39 view .LVU257
+ 1100 002a FFF7FEFF 		bl	__aeabi_f2d
+ 1101              	.LVL66:
+ 1102              		.loc 1 170 42 view .LVU258
+ 1103 002e 0022     		movs	r2, #0
+ 1104 0030 3B4B     		ldr	r3, .L60+16
+ 1105 0032 FFF7FEFF 		bl	__aeabi_dadd
+ 1106              	.LVL67:
+ 1107              		.loc 1 170 49 view .LVU259
+ 1108 0036 0022     		movs	r2, #0
+ 1109 0038 3A4B     		ldr	r3, .L60+20
+ 1110 003a FFF7FEFF 		bl	__aeabi_dmul
+ 1111              	.LVL68:
+ 1112              		.loc 1 170 55 view .LVU260
+ 1113 003e 0022     		movs	r2, #0
+ 1114 0040 394B     		ldr	r3, .L60+24
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 24
+
+
+ 1115 0042 FFF7FEFF 		bl	__aeabi_ddiv
+ 1116              	.LVL69:
+ 1117              		.loc 1 170 22 view .LVU261
+ 1118 0046 FFF7FEFF 		bl	__aeabi_d2iz
+ 1119              	.LVL70:
+ 1120              		.loc 1 170 20 view .LVU262
+ 1121 004a 6880     		strh	r0, [r5, #2]	@ movhi
+ 171:Core/Src/pid_control_tuning.c **** 
+ 172:Core/Src/pid_control_tuning.c ****   if(i <= 100) speed_set = 0;
+ 1122              		.loc 1 172 3 is_stmt 1 view .LVU263
+ 1123              		.loc 1 172 8 is_stmt 0 view .LVU264
+ 1124 004c 374B     		ldr	r3, .L60+28
+ 1125 004e 1B68     		ldr	r3, [r3]
+ 1126              		.loc 1 172 5 view .LVU265
+ 1127 0050 642B     		cmp	r3, #100
+ 1128 0052 25DC     		bgt	.L51
+ 1129              		.loc 1 172 16 is_stmt 1 discriminator 1 view .LVU266
+ 1130              		.loc 1 172 26 is_stmt 0 discriminator 1 view .LVU267
+ 1131 0054 364A     		ldr	r2, .L60+32
+ 1132 0056 0021     		movs	r1, #0
+ 1133 0058 1160     		str	r1, [r2]
+ 1134              	.L52:
+ 173:Core/Src/pid_control_tuning.c ****   else if(i >100 && i<=1100) speed_set = -15;
+ 174:Core/Src/pid_control_tuning.c ****   else if(i >1100 && i<=2100) speed_set = 15;
+ 175:Core/Src/pid_control_tuning.c ****   if(i > 2100) i = 0;
+ 1135              		.loc 1 175 3 is_stmt 1 view .LVU268
+ 1136              		.loc 1 175 5 is_stmt 0 view .LVU269
+ 1137 005a 40F63402 		movw	r2, #2100
+ 1138 005e 9342     		cmp	r3, r2
+ 1139 0060 02DD     		ble	.L54
+ 1140              		.loc 1 175 16 is_stmt 1 discriminator 1 view .LVU270
+ 1141              		.loc 1 175 18 is_stmt 0 discriminator 1 view .LVU271
+ 1142 0062 324B     		ldr	r3, .L60+28
+ 1143 0064 0022     		movs	r2, #0
+ 1144 0066 1A60     		str	r2, [r3]
+ 1145              	.L54:
+ 176:Core/Src/pid_control_tuning.c ****   //speed_set = 25;
+ 177:Core/Src/pid_control_tuning.c ****   
+ 178:Core/Src/pid_control_tuning.c ****   motor_pid[motor_ID].target = speed_set; 																							
+ 1146              		.loc 1 178 3 is_stmt 1 view .LVU272
+ 1147              		.loc 1 178 30 is_stmt 0 view .LVU273
+ 1148 0068 3248     		ldr	r0, .L60+36
+ 1149 006a 6423     		movs	r3, #100
+ 1150 006c 03FB0400 		mla	r0, r3, r4, r0
+ 1151 0070 2F4B     		ldr	r3, .L60+32
+ 1152 0072 D3ED007A 		vldr.32	s15, [r3]	@ int
+ 1153 0076 F8EEE77A 		vcvt.f32.s32	s15, s15
+ 1154 007a C0ED017A 		vstr.32	s15, [r0, #4]
+ 179:Core/Src/pid_control_tuning.c ****   motor_pid[motor_ID].f_cal_pid(&motor_pid[motor_ID], moto_chassis[motor_ID].speed_rpm, 0);
+ 1155              		.loc 1 179 3 is_stmt 1 view .LVU274
+ 1156              		.loc 1 179 22 is_stmt 0 view .LVU275
+ 1157 007e 026E     		ldr	r2, [r0, #96]
+ 1158              		.loc 1 179 77 view .LVU276
+ 1159 0080 04EB4403 		add	r3, r4, r4, lsl #1
+ 1160 0084 1B01     		lsls	r3, r3, #4
+ 1161 0086 2C49     		ldr	r1, .L60+40
+ 1162 0088 CB5E     		ldrsh	r3, [r1, r3]
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 25
+
+
+ 1163 008a 00EE103A 		vmov	s0, r3	@ int
+ 1164              		.loc 1 179 3 view .LVU277
+ 1165 008e 0021     		movs	r1, #0
+ 1166 0090 B8EEC00A 		vcvt.f32.s32	s0, s0
+ 1167 0094 9047     		blx	r2
+ 1168              	.LVL71:
+ 180:Core/Src/pid_control_tuning.c ****   if(motor_ID == 0) set_moto_current(&hcan1, motor_pid[motor_ID].output, 0, 0, 0);
+ 1169              		.loc 1 180 3 is_stmt 1 view .LVU278
+ 1170              		.loc 1 180 5 is_stmt 0 view .LVU279
+ 1171 0096 B4B1     		cbz	r4, .L58
+ 1172              	.L55:
+ 181:Core/Src/pid_control_tuning.c ****   if(motor_ID == 1) set_moto_current(&hcan1, 0, motor_pid[motor_ID].output, 0, 0);
+ 1173              		.loc 1 181 3 is_stmt 1 view .LVU280
+ 1174              		.loc 1 181 5 is_stmt 0 view .LVU281
+ 1175 0098 012C     		cmp	r4, #1
+ 1176 009a 26D0     		beq	.L59
+ 1177              	.LVL72:
+ 1178              	.L50:
+ 182:Core/Src/pid_control_tuning.c ****   //set_moto_current(&hcan1, 0, 0, 0, 0);
+ 183:Core/Src/pid_control_tuning.c ****   //printf("%d\n", moto_chassis[0].speed_rpm);
+ 184:Core/Src/pid_control_tuning.c ****   //printf("%d\n", moto_chassis[0].total_angle);
+ 185:Core/Src/pid_control_tuning.c ****   /**printf("%f, ", (float)j);*/
+ 186:Core/Src/pid_control_tuning.c ****   /**printf("%d, %d\n", speed_set, ABS_IMU_angle[motor_ID]);*/
+ 187:Core/Src/pid_control_tuning.c **** }
+ 1179              		.loc 1 187 1 view .LVU282
+ 1180 009c 03B0     		add	sp, sp, #12
+ 1181              	.LCFI25:
+ 1182              		.cfi_remember_state
+ 1183              		.cfi_def_cfa_offset 12
+ 1184              		@ sp needed
+ 1185 009e 30BD     		pop	{r4, r5, pc}
+ 1186              	.LVL73:
+ 1187              	.L51:
+ 1188              	.LCFI26:
+ 1189              		.cfi_restore_state
+ 173:Core/Src/pid_control_tuning.c ****   else if(i >1100 && i<=2100) speed_set = 15;
+ 1190              		.loc 1 173 8 is_stmt 1 view .LVU283
+ 173:Core/Src/pid_control_tuning.c ****   else if(i >1100 && i<=2100) speed_set = 15;
+ 1191              		.loc 1 173 18 is_stmt 0 view .LVU284
+ 1192 00a0 A3F16502 		sub	r2, r3, #101
+ 173:Core/Src/pid_control_tuning.c ****   else if(i >1100 && i<=2100) speed_set = 15;
+ 1193              		.loc 1 173 10 view .LVU285
+ 1194 00a4 B2F57A7F 		cmp	r2, #1000
+ 1195 00a8 04D2     		bcs	.L53
+ 173:Core/Src/pid_control_tuning.c ****   else if(i >1100 && i<=2100) speed_set = 15;
+ 1196              		.loc 1 173 30 is_stmt 1 discriminator 1 view .LVU286
+ 173:Core/Src/pid_control_tuning.c ****   else if(i >1100 && i<=2100) speed_set = 15;
+ 1197              		.loc 1 173 40 is_stmt 0 discriminator 1 view .LVU287
+ 1198 00aa 214A     		ldr	r2, .L60+32
+ 1199 00ac 6FF00E01 		mvn	r1, #14
+ 1200 00b0 1160     		str	r1, [r2]
+ 1201 00b2 D2E7     		b	.L52
+ 1202              	.L53:
+ 174:Core/Src/pid_control_tuning.c ****   if(i > 2100) i = 0;
+ 1203              		.loc 1 174 8 is_stmt 1 view .LVU288
+ 174:Core/Src/pid_control_tuning.c ****   if(i > 2100) i = 0;
+ 1204              		.loc 1 174 19 is_stmt 0 view .LVU289
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 26
+
+
+ 1205 00b4 A3F24D42 		subw	r2, r3, #1101
+ 174:Core/Src/pid_control_tuning.c ****   if(i > 2100) i = 0;
+ 1206              		.loc 1 174 10 view .LVU290
+ 1207 00b8 B2F57A7F 		cmp	r2, #1000
+ 1208 00bc CDD2     		bcs	.L52
+ 174:Core/Src/pid_control_tuning.c ****   if(i > 2100) i = 0;
+ 1209              		.loc 1 174 31 is_stmt 1 discriminator 1 view .LVU291
+ 174:Core/Src/pid_control_tuning.c ****   if(i > 2100) i = 0;
+ 1210              		.loc 1 174 41 is_stmt 0 discriminator 1 view .LVU292
+ 1211 00be 1C4A     		ldr	r2, .L60+32
+ 1212 00c0 0F21     		movs	r1, #15
+ 1213 00c2 1160     		str	r1, [r2]
+ 1214 00c4 C9E7     		b	.L52
+ 1215              	.L58:
+ 180:Core/Src/pid_control_tuning.c ****   if(motor_ID == 1) set_moto_current(&hcan1, 0, motor_pid[motor_ID].output, 0, 0);
+ 1216              		.loc 1 180 21 is_stmt 1 discriminator 1 view .LVU293
+ 180:Core/Src/pid_control_tuning.c ****   if(motor_ID == 1) set_moto_current(&hcan1, 0, motor_pid[motor_ID].output, 0, 0);
+ 1217              		.loc 1 180 65 is_stmt 0 discriminator 1 view .LVU294
+ 1218 00c6 1B4B     		ldr	r3, .L60+36
+ 1219 00c8 6422     		movs	r2, #100
+ 1220 00ca 02FB0433 		mla	r3, r2, r4, r3
+ 1221 00ce D3ED0C7A 		vldr.32	s15, [r3, #48]
+ 180:Core/Src/pid_control_tuning.c ****   if(motor_ID == 1) set_moto_current(&hcan1, 0, motor_pid[motor_ID].output, 0, 0);
+ 1222              		.loc 1 180 21 discriminator 1 view .LVU295
+ 1223 00d2 FDEEE77A 		vcvt.s32.f32	s15, s15
+ 1224 00d6 0022     		movs	r2, #0
+ 1225 00d8 0092     		str	r2, [sp]
+ 1226 00da 1346     		mov	r3, r2
+ 1227 00dc 17EE901A 		vmov	r1, s15	@ int
+ 1228 00e0 09B2     		sxth	r1, r1
+ 1229 00e2 1648     		ldr	r0, .L60+44
+ 1230 00e4 FFF7FEFF 		bl	set_moto_current
+ 1231              	.LVL74:
+ 1232 00e8 D6E7     		b	.L55
+ 1233              	.L59:
+ 181:Core/Src/pid_control_tuning.c ****   //set_moto_current(&hcan1, 0, 0, 0, 0);
+ 1234              		.loc 1 181 21 is_stmt 1 discriminator 1 view .LVU296
+ 181:Core/Src/pid_control_tuning.c ****   //set_moto_current(&hcan1, 0, 0, 0, 0);
+ 1235              		.loc 1 181 68 is_stmt 0 discriminator 1 view .LVU297
+ 1236 00ea 1248     		ldr	r0, .L60+36
+ 1237 00ec 6423     		movs	r3, #100
+ 1238 00ee 03FB0404 		mla	r4, r3, r4, r0
+ 1239              	.LVL75:
+ 181:Core/Src/pid_control_tuning.c ****   //set_moto_current(&hcan1, 0, 0, 0, 0);
+ 1240              		.loc 1 181 68 discriminator 1 view .LVU298
+ 1241 00f2 D4ED0C7A 		vldr.32	s15, [r4, #48]
+ 181:Core/Src/pid_control_tuning.c ****   //set_moto_current(&hcan1, 0, 0, 0, 0);
+ 1242              		.loc 1 181 21 discriminator 1 view .LVU299
+ 1243 00f6 FDEEE77A 		vcvt.s32.f32	s15, s15
+ 1244 00fa 0021     		movs	r1, #0
+ 1245 00fc 0091     		str	r1, [sp]
+ 1246 00fe 0B46     		mov	r3, r1
+ 1247 0100 17EE902A 		vmov	r2, s15	@ int
+ 1248 0104 12B2     		sxth	r2, r2
+ 1249 0106 0D48     		ldr	r0, .L60+44
+ 1250 0108 FFF7FEFF 		bl	set_moto_current
+ 1251              	.LVL76:
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 27
+
+
+ 1252              		.loc 1 187 1 discriminator 1 view .LVU300
+ 1253 010c C6E7     		b	.L50
+ 1254              	.L61:
+ 1255 010e 00BF     		.align	2
+ 1256              	.L60:
+ 1257 0110 00000000 		.word	.LANCHOR0
+ 1258 0114 00000046 		.word	1174405120
+ 1259 0118 0000B443 		.word	1135869952
+ 1260 011c 00000000 		.word	.LANCHOR1
+ 1261 0120 00806640 		.word	1080459264
+ 1262 0124 0000C040 		.word	1086324736
+ 1263 0128 00807640 		.word	1081507840
+ 1264 012c 00000000 		.word	.LANCHOR5
+ 1265 0130 00000000 		.word	.LANCHOR11
+ 1266 0134 00000000 		.word	.LANCHOR4
+ 1267 0138 00000000 		.word	moto_chassis
+ 1268 013c 00000000 		.word	hcan1
+ 1269              		.cfi_endproc
+ 1270              	.LFE139:
+ 1272              		.global	speed_set
+ 1273              		.global	time
+ 1274              		.global	speed
+ 1275              		.global	current
+ 1276              		.global	j
+ 1277              		.global	i
+ 1278              		.global	Gimbal_angle
+ 1279              		.global	IMU_Angle
+ 1280              		.global	IMU_Angle_Raw
+ 1281              		.global	ABS_IMU_angle
+ 1282              		.global	ABS_Gimbal_angle
+ 1283              		.global	abs_pid
+ 1284              		.global	angle_pid
+ 1285              		.global	motor_pid
+ 1286              		.section	.bss.ABS_IMU_angle,"aw",%nobits
+ 1287              		.align	2
+ 1288              		.set	.LANCHOR1,. + 0
+ 1291              	ABS_IMU_angle:
+ 1292 0000 00000000 		.space	4
+ 1293              		.section	.bss.Gimbal_angle,"aw",%nobits
+ 1294              		.align	2
+ 1295              		.set	.LANCHOR6,. + 0
+ 1298              	Gimbal_angle:
+ 1299 0000 00000000 		.space	4
+ 1300              		.section	.bss.IMU_Angle,"aw",%nobits
+ 1301              		.align	2
+ 1302              		.set	.LANCHOR0,. + 0
+ 1305              	IMU_Angle:
+ 1306 0000 00000000 		.space	12
+ 1306      00000000 
+ 1306      00000000 
+ 1307              		.section	.bss.IMU_Angle_Raw,"aw",%nobits
+ 1308              		.align	2
+ 1311              	IMU_Angle_Raw:
+ 1312 0000 00000000 		.space	6
+ 1312      0000
+ 1313              		.section	.bss.abs_pid,"aw",%nobits
+ 1314              		.align	2
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 28
+
+
+ 1315              		.set	.LANCHOR3,. + 0
+ 1318              	abs_pid:
+ 1319 0000 00000000 		.space	200
+ 1319      00000000 
+ 1319      00000000 
+ 1319      00000000 
+ 1319      00000000 
+ 1320              		.section	.bss.angle_pid,"aw",%nobits
+ 1321              		.align	2
+ 1322              		.set	.LANCHOR7,. + 0
+ 1325              	angle_pid:
+ 1326 0000 00000000 		.space	200
+ 1326      00000000 
+ 1326      00000000 
+ 1326      00000000 
+ 1326      00000000 
+ 1327              		.section	.bss.current,"aw",%nobits
+ 1328              		.align	2
+ 1329              		.set	.LANCHOR10,. + 0
+ 1332              	current:
+ 1333 0000 00000000 		.space	4
+ 1334              		.section	.bss.i,"aw",%nobits
+ 1335              		.align	2
+ 1336              		.set	.LANCHOR5,. + 0
+ 1339              	i:
+ 1340 0000 00000000 		.space	4
+ 1341              		.section	.bss.j,"aw",%nobits
+ 1342              		.align	2
+ 1345              	j:
+ 1346 0000 00000000 		.space	4
+ 1347              		.section	.bss.motor_pid,"aw",%nobits
+ 1348              		.align	2
+ 1349              		.set	.LANCHOR4,. + 0
+ 1352              	motor_pid:
+ 1353 0000 00000000 		.space	400
+ 1353      00000000 
+ 1353      00000000 
+ 1353      00000000 
+ 1353      00000000 
+ 1354              		.section	.bss.speed,"aw",%nobits
+ 1355              		.align	2
+ 1356              		.set	.LANCHOR8,. + 0
+ 1359              	speed:
+ 1360 0000 00000000 		.space	4
+ 1361              		.section	.bss.speed_set,"aw",%nobits
+ 1362              		.align	2
+ 1363              		.set	.LANCHOR11,. + 0
+ 1366              	speed_set:
+ 1367 0000 00000000 		.space	4
+ 1368              		.section	.bss.time,"aw",%nobits
+ 1369              		.align	2
+ 1370              		.set	.LANCHOR9,. + 0
+ 1373              	time:
+ 1374 0000 00000000 		.space	4
+ 1375              		.section	.data.ABS_Gimbal_angle,"aw"
+ 1376              		.align	2
+ 1377              		.set	.LANCHOR2,. + 0
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 29
+
+
+ 1380              	ABS_Gimbal_angle:
+ 1381 0000 00200046 		.word	1174413312
+ 1382 0004 0020FD45 		.word	1174216704
+ 1383              		.text
+ 1384              	.Letext0:
+ 1385              		.file 2 "c:\\program files (x86)\\gnu arm embedded toolchain\\10 2021.10\\arm-none-eabi\\include\\
+ 1386              		.file 3 "c:\\program files (x86)\\gnu arm embedded toolchain\\10 2021.10\\arm-none-eabi\\include\\
+ 1387              		.file 4 "Core/Inc/pid.h"
+ 1388              		.file 5 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 1389              		.file 6 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
+ 1390              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_can.h"
+ 1391              		.file 8 "Core/Inc/mytype.h"
+ 1392              		.file 9 "Core/Inc/can.h"
+ 1393              		.file 10 "Core/Inc/bsp_can.h"
+ 1394              		.file 11 "Core/Inc/pid_control_tuning.h"
+ 1395              		.file 12 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h"
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 30
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 pid_control_tuning.c
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:25     .text.Abs_angle_control_loop:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:31     .text.Abs_angle_control_loop:00000000 Abs_angle_control_loop
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:195    .text.Abs_angle_control_loop:000000f8 $d
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:211    .text.Rel_angle_control_loop:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:217    .text.Rel_angle_control_loop:00000000 Rel_angle_control_loop
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:410    .text.Rel_angle_control_loop:0000011c $d
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:424    .text.Abs_angle_PID_test_loop:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:430    .text.Abs_angle_PID_test_loop:00000000 Abs_angle_PID_test_loop
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:599    .text.Abs_angle_PID_test_loop:000000e8 $d
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:614    .text.Rel_angle_PID_test_loop:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:620    .text.Rel_angle_PID_test_loop:00000000 Rel_angle_PID_test_loop
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:750    .text.Rel_angle_PID_test_loop:000000ac $d
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:759    .text.speed_loop_PID_tuning:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:765    .text.speed_loop_PID_tuning:00000000 speed_loop_PID_tuning
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:875    .text.speed_loop_PID_tuning:00000074 $d
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:885    .text.Rel_angleloop_PID_tuning:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:891    .text.Rel_angleloop_PID_tuning:00000000 Rel_angleloop_PID_tuning
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1046   .text.Rel_angleloop_PID_tuning:000000c8 $d
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1055   .text.Abs_anglelop_PID_tuning:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1061   .text.Abs_anglelop_PID_tuning:00000000 Abs_anglelop_PID_tuning
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1257   .text.Abs_anglelop_PID_tuning:00000110 $d
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1366   .bss.speed_set:00000000 speed_set
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1373   .bss.time:00000000 time
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1359   .bss.speed:00000000 speed
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1332   .bss.current:00000000 current
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1345   .bss.j:00000000 j
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1339   .bss.i:00000000 i
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1298   .bss.Gimbal_angle:00000000 Gimbal_angle
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1305   .bss.IMU_Angle:00000000 IMU_Angle
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1311   .bss.IMU_Angle_Raw:00000000 IMU_Angle_Raw
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1291   .bss.ABS_IMU_angle:00000000 ABS_IMU_angle
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1380   .data.ABS_Gimbal_angle:00000000 ABS_Gimbal_angle
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1318   .bss.abs_pid:00000000 abs_pid
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1325   .bss.angle_pid:00000000 angle_pid
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1352   .bss.motor_pid:00000000 motor_pid
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1287   .bss.ABS_IMU_angle:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1294   .bss.Gimbal_angle:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1301   .bss.IMU_Angle:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1308   .bss.IMU_Angle_Raw:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1314   .bss.abs_pid:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1321   .bss.angle_pid:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1328   .bss.current:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1335   .bss.i:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1342   .bss.j:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1348   .bss.motor_pid:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1355   .bss.speed:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1362   .bss.speed_set:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1369   .bss.time:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s:1376   .data.ABS_Gimbal_angle:00000000 $d
+
+UNDEFINED SYMBOLS
+__aeabi_f2d
+__aeabi_dadd
+__aeabi_dmul
+__aeabi_ddiv
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTQfSCG.s 			page 31
+
+
+__aeabi_d2iz
+set_moto_current
+HAL_Delay
+moto_chassis
+hcan1
