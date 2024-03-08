@@ -35,6 +35,7 @@
 #include "usbd_cdc_if.h"
 #include <stdio.h>
 #include <string.h>
+#include "pid_control_tuning.h"
 
 /* USER CODE END Includes */
 
