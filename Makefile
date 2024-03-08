@@ -69,12 +69,8 @@ Core/Src/usart.c \
 Core/Src/pid.c \
 Core/Src/pid_control_tuning.c \
 Core/Src/bsp_can.c \
-USB_DEVICE/App/usb_device.c \
-USB_DEVICE/App/usbd_desc.c \
-USB_DEVICE/Target/usbd_conf.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pcd.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pcd_ex.c \
-Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_usb.c 
 
 # ASM sources
 ASM_SOURCES =  \
@@ -137,10 +133,6 @@ C_INCLUDES =  \
 -IDrivers/STM32F4xx_HAL_Driver/Inc/Legacy \
 -IDrivers/CMSIS/Device/ST/STM32F4xx/Include \
 -IDrivers/CMSIS/Include \
--IUSB_DEVICE/App \
--IUSB_DEVICE/Target \
--IMiddlewares/ST/STM32_USB_Device_Library/Core/Inc \
--IMiddlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc
 
 
 # compile gcc flags

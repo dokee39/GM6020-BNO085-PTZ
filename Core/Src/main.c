@@ -32,7 +32,6 @@
 #include "package.h"
 #include "pid.h"
 #include "math.h"
-#include "usbd_cdc_if.h"
 #include <stdio.h>
 #include <string.h>
 #include "pid_control_tuning.h"
@@ -167,7 +166,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    USBD_Interface_fops_FS.Receive((uint8_t *)buf_r, &size);
+    // USBD_Interface_fops_FS.Receive((uint8_t *)buf_r, &size);
     fromVector((uint8_t *)buf_r, &rp);
 		aim_pos.x = rp.x;
 		aim_pos.y = rp.y; 
@@ -185,7 +184,7 @@ int main(void)
 		sp.yaw = M_PI * (-IMU_Angle[2]+90)/180;
 		sp.pitch = M_PI * (-IMU_Angle[0] + 180)/180;
 		sp.roll = M_PI * IMU_Angle[1]/180;
-    CDC_Transmit_FS((uint8_t *)&sp, sizeof(struct SendPacket));
+    // CDC_Transmit_FS((uint8_t *)&sp, sizeof(struct SendPacket));
 
 		//printf("yaw: %d/1000\n",(int)(yaw*1000));
 		//printf("ok\n");
