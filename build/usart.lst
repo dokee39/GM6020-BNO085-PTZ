@@ -1,4 +1,4 @@
-ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s 			page 1
+ARM GAS  /tmp/ccYeYbPM.s 			page 1
 
 
    1              		.cpu cortex-m4
@@ -19,15 +19,15 @@ ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s 			page 1
   16              		.text
   17              	.Ltext0:
   18              		.cfi_sections	.debug_frame
-  19              		.section	.text.MX_USART1_UART_Init,"ax",%progbits
-  20              		.align	1
-  21              		.global	MX_USART1_UART_Init
-  22              		.syntax unified
-  23              		.thumb
-  24              		.thumb_func
-  26              	MX_USART1_UART_Init:
-  27              	.LFB130:
-  28              		.file 1 "Core/Src/usart.c"
+  19              		.file 1 "Core/Src/usart.c"
+  20              		.section	.text.MX_USART1_UART_Init,"ax",%progbits
+  21              		.align	1
+  22              		.global	MX_USART1_UART_Init
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	MX_USART1_UART_Init:
+  28              	.LFB130:
    1:Core/Src/usart.c **** /* USER CODE BEGIN Header */
    2:Core/Src/usart.c **** /**
    3:Core/Src/usart.c ****   ******************************************************************************
@@ -58,7 +58,7 @@ ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s 			page 1
   28:Core/Src/usart.c **** 
   29:Core/Src/usart.c **** /* USART1 init function */
   30:Core/Src/usart.c **** 
-ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s 			page 2
+ARM GAS  /tmp/ccYeYbPM.s 			page 2
 
 
   31:Core/Src/usart.c **** void MX_USART1_UART_Init(void)
@@ -118,14 +118,14 @@ ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s 			page 1
   65              		.loc 1 48 28 is_stmt 0 view .LVU16
   66 001a C361     		str	r3, [r0, #28]
   49:Core/Src/usart.c ****   if (HAL_UART_Init(&huart1) != HAL_OK)
-ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s 			page 3
+ARM GAS  /tmp/ccYeYbPM.s 			page 3
 
 
   67              		.loc 1 49 3 is_stmt 1 view .LVU17
   68              		.loc 1 49 7 is_stmt 0 view .LVU18
   69 001c FFF7FEFF 		bl	HAL_UART_Init
   70              	.LVL0:
-  71              		.loc 1 49 6 view .LVU19
+  71              		.loc 1 49 6 discriminator 1 view .LVU19
   72 0020 00B9     		cbnz	r0, .L4
   73              	.L1:
   50:Core/Src/usart.c ****   {
@@ -148,7 +148,7 @@ ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s 			page 1
   82              	.L6:
   83 002a 00BF     		.align	2
   84              	.L5:
-  85 002c 00000000 		.word	.LANCHOR0
+  85 002c 00000000 		.word	huart1
   86 0030 00100140 		.word	1073811456
   87 0034 80841E00 		.word	2000000
   88              		.cfi_endproc
@@ -178,7 +178,7 @@ ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s 			page 1
  111              		.cfi_offset 6, -12
  112              		.cfi_offset 7, -8
  113              		.cfi_offset 14, -4
-ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s 			page 4
+ARM GAS  /tmp/ccYeYbPM.s 			page 4
 
 
  114 0002 89B0     		sub	sp, sp, #36
@@ -238,7 +238,7 @@ ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s 			page 1
   94:Core/Src/usart.c ****   /* USER CODE BEGIN USART1_MspInit 1 */
   95:Core/Src/usart.c **** 
   96:Core/Src/usart.c ****   /* USER CODE END USART1_MspInit 1 */
-ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s 			page 5
+ARM GAS  /tmp/ccYeYbPM.s 			page 5
 
 
   97:Core/Src/usart.c ****   }
@@ -298,7 +298,7 @@ ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s 			page 1
  176              		.loc 1 71 5 view .LVU41
  177 004e 019A     		ldr	r2, [sp, #4]
  178              	.LBE3:
-ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s 			page 6
+ARM GAS  /tmp/ccYeYbPM.s 			page 6
 
 
   71:Core/Src/usart.c ****     __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -358,7 +358,7 @@ ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s 			page 1
  216              	.LVL5:
   82:Core/Src/usart.c **** 
  217              		.loc 1 82 5 is_stmt 0 view .LVU59
-ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s 			page 7
+ARM GAS  /tmp/ccYeYbPM.s 			page 7
 
 
  218 0078 FFF7FEFF 		bl	HAL_GPIO_Init
@@ -418,7 +418,7 @@ ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s 			page 1
  259              	.LFE131:
  261              		.section	.text.HAL_UART_MspDeInit,"ax",%progbits
  262              		.align	1
-ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s 			page 8
+ARM GAS  /tmp/ccYeYbPM.s 			page 8
 
 
  263              		.global	HAL_UART_MspDeInit
@@ -478,7 +478,7 @@ ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s 			page 1
  291 000a 08BD     		pop	{r3, pc}
  292              	.LVL12:
  293              	.L16:
-ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s 			page 9
+ARM GAS  /tmp/ccYeYbPM.s 			page 9
 
 
  109:Core/Src/usart.c **** 
@@ -521,44 +521,43 @@ ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s 			page 1
  327              		.global	huart1
  328              		.section	.bss.huart1,"aw",%nobits
  329              		.align	2
- 330              		.set	.LANCHOR0,. + 0
- 333              	huart1:
- 334 0000 00000000 		.space	68
- 334      00000000 
- 334      00000000 
- 334      00000000 
- 334      00000000 
- 335              		.text
- 336              	.Letext0:
- 337              		.file 2 "c:\\program files (x86)\\gnu arm embedded toolchain\\10 2021.10\\arm-none-eabi\\include\\
- 338              		.file 3 "c:\\program files (x86)\\gnu arm embedded toolchain\\10 2021.10\\arm-none-eabi\\include\\
- 339              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
- 340              		.file 5 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
- 341              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h"
- 342              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
- 343              		.file 8 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h"
- 344              		.file 9 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_cortex.h"
-ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s 			page 10
+ 332              	huart1:
+ 333 0000 00000000 		.space	68
+ 333      00000000 
+ 333      00000000 
+ 333      00000000 
+ 333      00000000 
+ 334              		.text
+ 335              	.Letext0:
+ 336              		.file 2 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 337              		.file 3 "/usr/arm-none-eabi/include/machine/_default_types.h"
+ 338              		.file 4 "/usr/arm-none-eabi/include/sys/_stdint.h"
+ 339              		.file 5 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 340              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h"
+ 341              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 342              		.file 8 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h"
+ 343              		.file 9 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_cortex.h"
+ 344              		.file 10 "Core/Inc/usart.h"
+ARM GAS  /tmp/ccYeYbPM.s 			page 10
 
 
- 345              		.file 10 "Core/Inc/main.h"
- 346              		.file 11 "Core/Inc/usart.h"
-ARM GAS  C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s 			page 11
+ 345              		.file 11 "Core/Inc/main.h"
+ARM GAS  /tmp/ccYeYbPM.s 			page 11
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 usart.c
-C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s:20     .text.MX_USART1_UART_Init:00000000 $t
-C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s:26     .text.MX_USART1_UART_Init:00000000 MX_USART1_UART_Init
-C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s:85     .text.MX_USART1_UART_Init:0000002c $d
-C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s:92     .text.HAL_UART_MspInit:00000000 $t
-C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s:98     .text.HAL_UART_MspInit:00000000 HAL_UART_MspInit
-C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s:256    .text.HAL_UART_MspInit:000000a4 $d
-C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s:262    .text.HAL_UART_MspDeInit:00000000 $t
-C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s:268    .text.HAL_UART_MspDeInit:00000000 HAL_UART_MspDeInit
-C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s:320    .text.HAL_UART_MspDeInit:00000030 $d
-C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s:333    .bss.huart1:00000000 huart1
-C:\Users\lenovo\AppData\Local\Temp\cc7LmTxh.s:329    .bss.huart1:00000000 $d
+     /tmp/ccYeYbPM.s:21     .text.MX_USART1_UART_Init:00000000 $t
+     /tmp/ccYeYbPM.s:27     .text.MX_USART1_UART_Init:00000000 MX_USART1_UART_Init
+     /tmp/ccYeYbPM.s:85     .text.MX_USART1_UART_Init:0000002c $d
+     /tmp/ccYeYbPM.s:332    .bss.huart1:00000000 huart1
+     /tmp/ccYeYbPM.s:92     .text.HAL_UART_MspInit:00000000 $t
+     /tmp/ccYeYbPM.s:98     .text.HAL_UART_MspInit:00000000 HAL_UART_MspInit
+     /tmp/ccYeYbPM.s:256    .text.HAL_UART_MspInit:000000a4 $d
+     /tmp/ccYeYbPM.s:262    .text.HAL_UART_MspDeInit:00000000 $t
+     /tmp/ccYeYbPM.s:268    .text.HAL_UART_MspDeInit:00000000 HAL_UART_MspDeInit
+     /tmp/ccYeYbPM.s:320    .text.HAL_UART_MspDeInit:00000030 $d
+     /tmp/ccYeYbPM.s:329    .bss.huart1:00000000 $d
 
 UNDEFINED SYMBOLS
 HAL_UART_Init

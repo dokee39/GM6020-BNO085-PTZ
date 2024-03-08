@@ -1,4 +1,4 @@
-ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s 			page 1
+ARM GAS  /tmp/ccHVKNZz.s 			page 1
 
 
    1              		.cpu cortex-m4
@@ -19,16 +19,16 @@ ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s 			page 1
   16              		.text
   17              	.Ltext0:
   18              		.cfi_sections	.debug_frame
-  19              		.section	.text.cgetc,"ax",%progbits
-  20              		.align	1
-  21              		.global	cgetc
-  22              		.syntax unified
-  23              		.thumb
-  24              		.thumb_func
-  26              	cgetc:
-  27              	.LVL0:
-  28              	.LFB134:
-  29              		.file 1 "Core/Src/com.c"
+  19              		.file 1 "Core/Src/com.c"
+  20              		.section	.text.cgetc,"ax",%progbits
+  21              		.align	1
+  22              		.global	cgetc
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	cgetc:
+  28              	.LVL0:
+  29              	.LFB134:
    1:Core/Src/com.c **** //
    2:Core/Src/com.c **** 
    3:Core/Src/com.c **** #include "com.h"
@@ -58,7 +58,7 @@ ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s 			page 1
   46              		.loc 1 10 5 is_stmt 1 view .LVU4
   47 000a 4FF6FF73 		movw	r3, #65535
   48 000e 0122     		movs	r2, #1
-ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s 			page 2
+ARM GAS  /tmp/ccHVKNZz.s 			page 2
 
 
   49 0010 0DF10701 		add	r1, sp, #7
@@ -118,7 +118,7 @@ ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s 			page 1
   97              		.loc 1 18 14 is_stmt 0 view .LVU14
   98 000e 2846     		mov	r0, r5
   99              	.LVL4:
-ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s 			page 3
+ARM GAS  /tmp/ccHVKNZz.s 			page 3
 
 
  100              		.loc 1 18 14 view .LVU15
@@ -126,260 +126,258 @@ ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s 			page 1
  102              	.LVL5:
  103              	.L4:
   17:Core/Src/com.c ****     while (isspace(ch))
- 104              		.loc 1 17 11 is_stmt 1 view .LVU16
+ 104              		.loc 1 17 12 is_stmt 1 view .LVU16
+ 105 0014 074B     		ldr	r3, .L9
+ 106 0016 1B5C     		ldrb	r3, [r3, r0]	@ zero_extendqisi2
+ 107 0018 13F0080F 		tst	r3, #8
+ 108 001c F7D1     		bne	.L5
   17:Core/Src/com.c ****     while (isspace(ch))
- 105              		.loc 1 17 12 is_stmt 0 view .LVU17
- 106 0014 074B     		ldr	r3, .L9
- 107 0016 C35C     		ldrb	r3, [r0, r3]	@ zero_extendqisi2
-  17:Core/Src/com.c ****     while (isspace(ch))
- 108              		.loc 1 17 11 view .LVU18
- 109 0018 13F0080F 		tst	r3, #8
- 110 001c F7D1     		bne	.L5
-  17:Core/Src/com.c ****     while (isspace(ch))
- 111              		.loc 1 17 11 view .LVU19
- 112 001e 04E0     		b	.L6
- 113              	.L7:
+ 109              		.loc 1 17 12 is_stmt 0 view .LVU17
+ 110 001e 04E0     		b	.L6
+ 111              	.L7:
   19:Core/Src/com.c ****     while (ch != end)
   20:Core/Src/com.c ****     {
   21:Core/Src/com.c ****         *(str++) = ch;
- 114              		.loc 1 21 9 is_stmt 1 view .LVU20
- 115              	.LVL6:
- 116              		.loc 1 21 18 is_stmt 0 view .LVU21
- 117 0020 04F8010B 		strb	r0, [r4], #1
- 118              	.LVL7:
+ 112              		.loc 1 21 9 is_stmt 1 view .LVU18
+ 113              	.LVL6:
+ 114              		.loc 1 21 18 is_stmt 0 view .LVU19
+ 115 0020 04F8010B 		strb	r0, [r4], #1
+ 116              	.LVL7:
   22:Core/Src/com.c ****         ch = cgetc(p);
- 119              		.loc 1 22 9 is_stmt 1 view .LVU22
- 120              		.loc 1 22 14 is_stmt 0 view .LVU23
- 121 0024 2846     		mov	r0, r5
- 122              	.LVL8:
- 123              		.loc 1 22 14 view .LVU24
- 124 0026 FFF7FEFF 		bl	cgetc
- 125              	.LVL9:
- 126              	.L6:
+ 117              		.loc 1 22 9 is_stmt 1 view .LVU20
+ 118              		.loc 1 22 14 is_stmt 0 view .LVU21
+ 119 0024 2846     		mov	r0, r5
+ 120              	.LVL8:
+ 121              		.loc 1 22 14 view .LVU22
+ 122 0026 FFF7FEFF 		bl	cgetc
+ 123              	.LVL9:
+ 124              	.L6:
   19:Core/Src/com.c ****     while (ch != end)
- 127              		.loc 1 19 11 is_stmt 1 view .LVU25
- 128 002a B042     		cmp	r0, r6
- 129 002c F8D1     		bne	.L7
+ 125              		.loc 1 19 15 is_stmt 1 view .LVU23
+ 126 002a B042     		cmp	r0, r6
+ 127 002c F8D1     		bne	.L7
   23:Core/Src/com.c ****     }
   24:Core/Src/com.c ****     *str = '\0';
- 130              		.loc 1 24 5 view .LVU26
- 131              		.loc 1 24 10 is_stmt 0 view .LVU27
- 132 002e 0023     		movs	r3, #0
- 133 0030 2370     		strb	r3, [r4]
+ 128              		.loc 1 24 5 view .LVU24
+ 129              		.loc 1 24 10 is_stmt 0 view .LVU25
+ 130 002e 0023     		movs	r3, #0
+ 131 0030 2370     		strb	r3, [r4]
   25:Core/Src/com.c **** }
- 134              		.loc 1 25 1 view .LVU28
- 135 0032 70BD     		pop	{r4, r5, r6, pc}
- 136              	.LVL10:
- 137              	.L10:
- 138              		.loc 1 25 1 view .LVU29
- 139              		.align	2
- 140              	.L9:
- 141 0034 01000000 		.word	_ctype_+1
- 142              		.cfi_endproc
- 143              	.LFE135:
- 145              		.section	.text.cgets_s,"ax",%progbits
-ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s 			page 4
+ 132              		.loc 1 25 1 view .LVU26
+ 133 0032 70BD     		pop	{r4, r5, r6, pc}
+ 134              	.LVL10:
+ 135              	.L10:
+ 136              		.loc 1 25 1 view .LVU27
+ 137              		.align	2
+ 138              	.L9:
+ 139 0034 01000000 		.word	_ctype_+1
+ 140              		.cfi_endproc
+ 141              	.LFE135:
+ 143              		.section	.text.cgets_s,"ax",%progbits
+ 144              		.align	1
+ 145              		.global	cgets_s
+ 146              		.syntax unified
+ 147              		.thumb
+ARM GAS  /tmp/ccHVKNZz.s 			page 4
 
 
- 146              		.align	1
- 147              		.global	cgets_s
- 148              		.syntax unified
- 149              		.thumb
- 150              		.thumb_func
- 152              	cgets_s:
- 153              	.LVL11:
- 154              	.LFB136:
+ 148              		.thumb_func
+ 150              	cgets_s:
+ 151              	.LVL11:
+ 152              	.LFB136:
   26:Core/Src/com.c **** 
   27:Core/Src/com.c **** void cgets_s(void *p, char *str, int s)
   28:Core/Src/com.c **** {
- 155              		.loc 1 28 1 is_stmt 1 view -0
- 156              		.cfi_startproc
- 157              		@ args = 0, pretend = 0, frame = 0
- 158              		@ frame_needed = 0, uses_anonymous_args = 0
+ 153              		.loc 1 28 1 is_stmt 1 view -0
+ 154              		.cfi_startproc
+ 155              		@ args = 0, pretend = 0, frame = 0
+ 156              		@ frame_needed = 0, uses_anonymous_args = 0
   29:Core/Src/com.c ****     if (s-- > 0)
- 159              		.loc 1 29 5 view .LVU31
- 160              		.loc 1 29 8 is_stmt 0 view .LVU32
- 161 0000 002A     		cmp	r2, #0
- 162 0002 02DC     		bgt	.L17
+ 157              		.loc 1 29 5 view .LVU29
+ 158              		.loc 1 29 8 is_stmt 0 view .LVU30
+ 159 0000 002A     		cmp	r2, #0
+ 160 0002 02DC     		bgt	.L17
   30:Core/Src/com.c ****         *(str++) = cgetc(p);
   31:Core/Src/com.c ****     *str = '\0';
- 163              		.loc 1 31 5 is_stmt 1 view .LVU33
- 164              		.loc 1 31 10 is_stmt 0 view .LVU34
- 165 0004 0023     		movs	r3, #0
- 166 0006 0B70     		strb	r3, [r1]
- 167 0008 7047     		bx	lr
- 168              	.L17:
+ 161              		.loc 1 31 5 is_stmt 1 view .LVU31
+ 162              		.loc 1 31 10 is_stmt 0 view .LVU32
+ 163 0004 0023     		movs	r3, #0
+ 164 0006 0B70     		strb	r3, [r1]
+ 165 0008 7047     		bx	lr
+ 166              	.L17:
   28:Core/Src/com.c ****     if (s-- > 0)
- 169              		.loc 1 28 1 view .LVU35
- 170 000a 10B5     		push	{r4, lr}
- 171              	.LCFI4:
- 172              		.cfi_def_cfa_offset 8
- 173              		.cfi_offset 4, -8
- 174              		.cfi_offset 14, -4
+ 167              		.loc 1 28 1 view .LVU33
+ 168 000a 10B5     		push	{r4, lr}
+ 169              	.LCFI4:
+ 170              		.cfi_def_cfa_offset 8
+ 171              		.cfi_offset 4, -8
+ 172              		.cfi_offset 14, -4
   30:Core/Src/com.c ****         *(str++) = cgetc(p);
- 175              		.loc 1 30 9 is_stmt 1 view .LVU36
+ 173              		.loc 1 30 9 is_stmt 1 view .LVU34
   30:Core/Src/com.c ****         *(str++) = cgetc(p);
- 176              		.loc 1 30 14 is_stmt 0 view .LVU37
- 177 000c 0C46     		mov	r4, r1
- 178              	.LVL12:
+ 174              		.loc 1 30 14 is_stmt 0 view .LVU35
+ 175 000c 0C46     		mov	r4, r1
+ 176              	.LVL12:
   30:Core/Src/com.c ****         *(str++) = cgetc(p);
- 179              		.loc 1 30 20 view .LVU38
- 180 000e FFF7FEFF 		bl	cgetc
- 181              	.LVL13:
+ 177              		.loc 1 30 20 view .LVU36
+ 178 000e FFF7FEFF 		bl	cgetc
+ 179              	.LVL13:
   30:Core/Src/com.c ****         *(str++) = cgetc(p);
- 182              		.loc 1 30 18 view .LVU39
- 183 0012 04F8010B 		strb	r0, [r4], #1
- 184              	.LVL14:
- 185              		.loc 1 31 5 is_stmt 1 view .LVU40
- 186              		.loc 1 31 10 is_stmt 0 view .LVU41
- 187 0016 0023     		movs	r3, #0
- 188 0018 2370     		strb	r3, [r4]
+ 180              		.loc 1 30 18 discriminator 1 view .LVU37
+ 181 0012 04F8010B 		strb	r0, [r4], #1
+ 182              	.LVL14:
+ 183              		.loc 1 31 5 is_stmt 1 view .LVU38
+ 184              		.loc 1 31 10 is_stmt 0 view .LVU39
+ 185 0016 0023     		movs	r3, #0
+ 186 0018 2370     		strb	r3, [r4]
   32:Core/Src/com.c **** }
- 189              		.loc 1 32 1 view .LVU42
- 190 001a 10BD     		pop	{r4, pc}
- 191              		.loc 1 32 1 view .LVU43
-ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s 			page 5
+ 187              		.loc 1 32 1 view .LVU40
+ 188 001a 10BD     		pop	{r4, pc}
+ 189              		.loc 1 32 1 view .LVU41
+ 190              		.cfi_endproc
+ 191              	.LFE136:
+ 193              		.section	.text.cprintf,"ax",%progbits
+ 194              		.align	1
+ARM GAS  /tmp/ccHVKNZz.s 			page 5
 
 
- 192              		.cfi_endproc
- 193              	.LFE136:
- 195              		.section	.text.cprintf,"ax",%progbits
- 196              		.align	1
- 197              		.global	cprintf
- 198              		.syntax unified
- 199              		.thumb
- 200              		.thumb_func
- 202              	cprintf:
- 203              	.LVL15:
- 204              	.LFB137:
+ 195              		.global	cprintf
+ 196              		.syntax unified
+ 197              		.thumb
+ 198              		.thumb_func
+ 200              	cprintf:
+ 201              	.LVL15:
+ 202              	.LFB137:
   33:Core/Src/com.c **** 
   34:Core/Src/com.c **** int cprintf(void *p, const char *format, ...)
   35:Core/Src/com.c **** {
- 205              		.loc 1 35 1 is_stmt 1 view -0
- 206              		.cfi_startproc
- 207              		@ args = 4, pretend = 12, frame = 8
- 208              		@ frame_needed = 0, uses_anonymous_args = 1
- 209              		.loc 1 35 1 is_stmt 0 view .LVU45
- 210 0000 0EB4     		push	{r1, r2, r3}
- 211              	.LCFI5:
- 212              		.cfi_def_cfa_offset 12
- 213              		.cfi_offset 1, -12
- 214              		.cfi_offset 2, -8
- 215              		.cfi_offset 3, -4
- 216 0002 70B5     		push	{r4, r5, r6, lr}
- 217              	.LCFI6:
- 218              		.cfi_def_cfa_offset 28
- 219              		.cfi_offset 4, -28
- 220              		.cfi_offset 5, -24
- 221              		.cfi_offset 6, -20
- 222              		.cfi_offset 14, -16
- 223 0004 83B0     		sub	sp, sp, #12
- 224              	.LCFI7:
- 225              		.cfi_def_cfa_offset 40
- 226 0006 0546     		mov	r5, r0
- 227 0008 07AA     		add	r2, sp, #28
- 228 000a 52F8041B 		ldr	r1, [r2], #4
+ 203              		.loc 1 35 1 is_stmt 1 view -0
+ 204              		.cfi_startproc
+ 205              		@ args = 4, pretend = 12, frame = 8
+ 206              		@ frame_needed = 0, uses_anonymous_args = 1
+ 207              		.loc 1 35 1 is_stmt 0 view .LVU43
+ 208 0000 0EB4     		push	{r1, r2, r3}
+ 209              	.LCFI5:
+ 210              		.cfi_def_cfa_offset 12
+ 211              		.cfi_offset 1, -12
+ 212              		.cfi_offset 2, -8
+ 213              		.cfi_offset 3, -4
+ 214 0002 70B5     		push	{r4, r5, r6, lr}
+ 215              	.LCFI6:
+ 216              		.cfi_def_cfa_offset 28
+ 217              		.cfi_offset 4, -28
+ 218              		.cfi_offset 5, -24
+ 219              		.cfi_offset 6, -20
+ 220              		.cfi_offset 14, -16
+ 221 0004 83B0     		sub	sp, sp, #12
+ 222              	.LCFI7:
+ 223              		.cfi_def_cfa_offset 40
+ 224 0006 0546     		mov	r5, r0
+ 225 0008 07AA     		add	r2, sp, #28
+ 226 000a 52F8041B 		ldr	r1, [r2], #4
   36:Core/Src/com.c ****     va_list ap;
- 229              		.loc 1 36 5 is_stmt 1 view .LVU46
+ 227              		.loc 1 36 5 is_stmt 1 view .LVU44
   37:Core/Src/com.c ****     va_start(ap, format);
- 230              		.loc 1 37 5 view .LVU47
- 231 000e 0192     		str	r2, [sp, #4]
+ 228              		.loc 1 37 5 view .LVU45
+ 229 000e 0192     		str	r2, [sp, #4]
   38:Core/Src/com.c **** 
   39:Core/Src/com.c ****     int res = vsprintf(COM_value, format, ap);
- 232              		.loc 1 39 5 view .LVU48
- 233              		.loc 1 39 15 is_stmt 0 view .LVU49
- 234 0010 084E     		ldr	r6, .L20
- 235 0012 3046     		mov	r0, r6
- 236              	.LVL16:
- 237              		.loc 1 39 15 view .LVU50
- 238 0014 FFF7FEFF 		bl	vsprintf
- 239              	.LVL17:
- 240 0018 0446     		mov	r4, r0
- 241              	.LVL18:
+ 230              		.loc 1 39 5 view .LVU46
+ 231              		.loc 1 39 15 is_stmt 0 view .LVU47
+ 232 0010 084E     		ldr	r6, .L20
+ 233 0012 3046     		mov	r0, r6
+ 234              	.LVL16:
+ 235              		.loc 1 39 15 view .LVU48
+ 236 0014 FFF7FEFF 		bl	vsprintf
+ 237              	.LVL17:
+ 238 0018 0446     		mov	r4, r0
+ 239              	.LVL18:
   40:Core/Src/com.c ****     HAL_UART_Transmit(p, (uint8_t *)COM_value, res, 0xffff);
- 242              		.loc 1 40 5 is_stmt 1 view .LVU51
-ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s 			page 6
+ 240              		.loc 1 40 5 is_stmt 1 view .LVU49
+ 241 001a 4FF6FF73 		movw	r3, #65535
+ 242 001e 82B2     		uxth	r2, r0
+ 243 0020 3146     		mov	r1, r6
+ 244 0022 2846     		mov	r0, r5
+ARM GAS  /tmp/ccHVKNZz.s 			page 6
 
 
- 243 001a 4FF6FF73 		movw	r3, #65535
- 244 001e 82B2     		uxth	r2, r0
- 245 0020 3146     		mov	r1, r6
- 246 0022 2846     		mov	r0, r5
- 247              	.LVL19:
- 248              		.loc 1 40 5 is_stmt 0 view .LVU52
- 249 0024 FFF7FEFF 		bl	HAL_UART_Transmit
- 250              	.LVL20:
+ 245              	.LVL19:
+ 246              		.loc 1 40 5 is_stmt 0 view .LVU50
+ 247 0024 FFF7FEFF 		bl	HAL_UART_Transmit
+ 248              	.LVL20:
   41:Core/Src/com.c **** 
   42:Core/Src/com.c ****     return res;
- 251              		.loc 1 42 5 is_stmt 1 view .LVU53
+ 249              		.loc 1 42 5 is_stmt 1 view .LVU51
   43:Core/Src/com.c **** }
- 252              		.loc 1 43 1 is_stmt 0 view .LVU54
- 253 0028 2046     		mov	r0, r4
- 254 002a 03B0     		add	sp, sp, #12
- 255              	.LCFI8:
- 256              		.cfi_def_cfa_offset 28
- 257              		@ sp needed
- 258 002c BDE87040 		pop	{r4, r5, r6, lr}
- 259              	.LCFI9:
- 260              		.cfi_restore 14
- 261              		.cfi_restore 6
- 262              		.cfi_restore 5
- 263              		.cfi_restore 4
- 264              		.cfi_def_cfa_offset 12
- 265              	.LVL21:
- 266              		.loc 1 43 1 view .LVU55
- 267 0030 03B0     		add	sp, sp, #12
- 268              	.LCFI10:
- 269              		.cfi_restore 3
- 270              		.cfi_restore 2
- 271              		.cfi_restore 1
- 272              		.cfi_def_cfa_offset 0
- 273 0032 7047     		bx	lr
- 274              	.L21:
- 275              		.align	2
- 276              	.L20:
- 277 0034 00000000 		.word	.LANCHOR0
- 278              		.cfi_endproc
- 279              	.LFE137:
- 281              		.global	COM_value
- 282              		.section	.bss.COM_value,"aw",%nobits
- 283              		.align	2
- 284              		.set	.LANCHOR0,. + 0
- 287              	COM_value:
- 288 0000 00000000 		.space	512
- 288      00000000 
- 288      00000000 
- 288      00000000 
- 288      00000000 
- 289              		.text
- 290              	.Letext0:
- 291              		.file 2 "c:\\program files (x86)\\gnu arm embedded toolchain\\10 2021.10\\arm-none-eabi\\include\\
- 292              		.file 3 "c:\\program files (x86)\\gnu arm embedded toolchain\\10 2021.10\\lib\\gcc\\arm-none-eabi\
- 293              		.file 4 "c:\\program files (x86)\\gnu arm embedded toolchain\\10 2021.10\\arm-none-eabi\\include\\
- 294              		.file 5 "c:\\program files (x86)\\gnu arm embedded toolchain\\10 2021.10\\arm-none-eabi\\include\\
- 295              		.file 6 "c:\\program files (x86)\\gnu arm embedded toolchain\\10 2021.10\\arm-none-eabi\\include\\
-ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s 			page 7
+ 250              		.loc 1 43 1 is_stmt 0 view .LVU52
+ 251 0028 2046     		mov	r0, r4
+ 252 002a 03B0     		add	sp, sp, #12
+ 253              	.LCFI8:
+ 254              		.cfi_def_cfa_offset 28
+ 255              		@ sp needed
+ 256 002c BDE87040 		pop	{r4, r5, r6, lr}
+ 257              	.LCFI9:
+ 258              		.cfi_restore 14
+ 259              		.cfi_restore 6
+ 260              		.cfi_restore 5
+ 261              		.cfi_restore 4
+ 262              		.cfi_def_cfa_offset 12
+ 263              	.LVL21:
+ 264              		.loc 1 43 1 view .LVU53
+ 265 0030 03B0     		add	sp, sp, #12
+ 266              	.LCFI10:
+ 267              		.cfi_restore 3
+ 268              		.cfi_restore 2
+ 269              		.cfi_restore 1
+ 270              		.cfi_def_cfa_offset 0
+ 271 0032 7047     		bx	lr
+ 272              	.L21:
+ 273              		.align	2
+ 274              	.L20:
+ 275 0034 00000000 		.word	COM_value
+ 276              		.cfi_endproc
+ 277              	.LFE137:
+ 279              		.global	COM_value
+ 280              		.section	.bss.COM_value,"aw",%nobits
+ 281              		.align	2
+ 284              	COM_value:
+ 285 0000 00000000 		.space	512
+ 285      00000000 
+ 285      00000000 
+ 285      00000000 
+ 285      00000000 
+ 286              		.text
+ 287              	.Letext0:
+ 288              		.file 2 "/usr/arm-none-eabi/include/machine/_default_types.h"
+ 289              		.file 3 "/usr/lib/gcc/arm-none-eabi/13.2.0/include/stdarg.h"
+ 290              		.file 4 "/usr/arm-none-eabi/include/sys/_stdint.h"
+ 291              		.file 5 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 292              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 293              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 294              		.file 8 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h"
+ 295              		.file 9 "/usr/arm-none-eabi/include/ctype.h"
+ 296              		.file 10 "/usr/arm-none-eabi/include/stdio.h"
+ 297              		.file 11 "<built-in>"
+ARM GAS  /tmp/ccHVKNZz.s 			page 7
 
 
- 296              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h"
- 297              		.file 8 "<built-in>"
-ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s 			page 8
+ARM GAS  /tmp/ccHVKNZz.s 			page 8
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 com.c
-C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s:20     .text.cgetc:00000000 $t
-C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s:26     .text.cgetc:00000000 cgetc
-C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s:64     .text.cgets:00000000 $t
-C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s:70     .text.cgets:00000000 cgets
-C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s:141    .text.cgets:00000034 $d
-C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s:146    .text.cgets_s:00000000 $t
-C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s:152    .text.cgets_s:00000000 cgets_s
-C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s:196    .text.cprintf:00000000 $t
-C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s:202    .text.cprintf:00000000 cprintf
-C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s:277    .text.cprintf:00000034 $d
-C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s:287    .bss.COM_value:00000000 COM_value
-C:\Users\lenovo\AppData\Local\Temp\ccezAL9d.s:283    .bss.COM_value:00000000 $d
+     /tmp/ccHVKNZz.s:21     .text.cgetc:00000000 $t
+     /tmp/ccHVKNZz.s:27     .text.cgetc:00000000 cgetc
+     /tmp/ccHVKNZz.s:64     .text.cgets:00000000 $t
+     /tmp/ccHVKNZz.s:70     .text.cgets:00000000 cgets
+     /tmp/ccHVKNZz.s:139    .text.cgets:00000034 $d
+     /tmp/ccHVKNZz.s:144    .text.cgets_s:00000000 $t
+     /tmp/ccHVKNZz.s:150    .text.cgets_s:00000000 cgets_s
+     /tmp/ccHVKNZz.s:194    .text.cprintf:00000000 $t
+     /tmp/ccHVKNZz.s:200    .text.cprintf:00000000 cprintf
+     /tmp/ccHVKNZz.s:275    .text.cprintf:00000034 $d
+     /tmp/ccHVKNZz.s:284    .bss.COM_value:00000000 COM_value
+     /tmp/ccHVKNZz.s:281    .bss.COM_value:00000000 $d
 
 UNDEFINED SYMBOLS
 HAL_UART_Receive
